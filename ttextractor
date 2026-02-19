@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Colour Text Extractor</title>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+</head>
+
+<body>
+
+<h2>Upload Image</h2>
+
+<input type="file" id="upload">
+
+<br><br>
+
+<canvas id="canvas"></canvas>
+
+<br><br>
+
+Selected Colour:
+
+<input type="color" id="picker">
+
+<br><br>
+
+<button onclick="extract()">Extract Text</button>
+
+<br><br>
+
+<textarea id="output" rows="15" cols="60"></textarea>
+
+<br>
+
+<button onclick="download()">Download TXT</button>
+
+
+<script>
+
+let img = new Image();
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
+
+let selectedColor = null;
+
+upload.onchange = function(e){
+
+img.src = URL.createObjectURL(e.target.files[0]);
+
+img.onload = function(){
+
+canvas.width = img.width;
+canvas.height = img.height;
+
+ctx.drawImage(img,0,0);
+
+}
+
+}
+
+canvas.onclick = function(e){
+
+let pixel = ctx.getImageData(e.offsetX, e.offsetY, 1,1).data;
+
+let hex = "#" +
+((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2])
+.toString(16).slice(1);
+
+picker.value = hex;
+
+selectedColor = pixel;
+
+}
+
+
+function extract(){
+
+let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+
+let data = imageData.data;
+
+for(let i=0;i<data.length;i+=4){
+
+let r = data[i];
+let g = data[i+1];
+let b = data[i+2];
+
+if(Math.abs(r-selectedColor[0])>40 ||
+Math.abs(g-selectedColor[1])>40 ||
+Math.abs(b-selectedColor[2])>40){
+
+data[i]=255;
+data[i+1]=255;
+data[i+2]=255;
+
+}
+
+}
+
+ctx.putImageData(imageData,0,0);
+
+Tesseract.recognize(canvas,"eng")
+.then(result => {
+
+output.value = result.data.text;
+
+});
+
+}
+
+
+function download(){
+
+let blob = new Blob([output.value], {type:"text/plain"});
+
+let a = document.createElement("a");
+
+a.href = URL.createObjectURL(blob);
+
+a.download = "output.txt";
+
+a.click();
+
+}
+
+</script>
+
+
+</body>
+</html>
