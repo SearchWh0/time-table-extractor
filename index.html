@@ -1,120 +1,640 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Excel Colour Extractor v1</title>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel Color Sorter</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --border: #2e2e2e;
+    --text: #e8e4dc;
+    --muted: #666;
+    --accent: #c8f542;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  header {
+    max-width: 900px;
+    margin: 0 auto 48px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 10px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .paste-zone {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    border: 1.5px dashed var(--border);
+    border-radius: 4px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .paste-zone:hover, .paste-zone.active {
+    border-color: var(--accent);
+    background: rgba(200, 245, 66, 0.03);
+  }
+
+  .paste-zone p {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .paste-zone .key {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin: 0 2px;
+  }
+
+  .paste-zone textarea {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+  }
+
+  .status {
+    max-width: 900px;
+    margin: 0 auto 16px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    min-height: 20px;
+  }
+
+  .status.ok { color: var(--accent); }
+  .status.err { color: #ff6b6b; }
+
+  .results {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .color-group {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .color-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.15);
+    flex-shrink: 0;
+  }
+
+  .color-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .color-count {
+    margin-left: auto;
+    background: var(--border);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .cells-grid {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .cell-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .color-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .color-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    outline: none;
+    width: 180px;
+    transition: border-color 0.2s;
+  }
+  .color-name-input:focus { border-bottom-color: var(--accent); }
+  .color-name-input::placeholder { color: var(--muted); font-size: 0.75rem; }
+
+  .empty-state {
+    max-width: 900px;
+    margin: 60px auto;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .clear-btn {
+    display: block;
+    max-width: 900px;
+    margin: 0 auto 24px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    padding: 8px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .clear-btn:hover { border-color: #ff6b6b; color: #ff6b6b; }
+
+  .debug-box {
+    max-width: 900px;
+    margin: 24px auto 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: none;
+  }
+  .debug-box.visible { display: block; }
+  .debug-header {
+    background: var(--surface);
+    padding: 10px 16px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .debug-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .debug-content {
+    padding: 16px;
+    font-size: 0.7rem;
+    color: #aaa;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 300px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+</style>
+</head>
 <body>
 
-<h2>Paste Excel (Ctrl+V)</h2>
+<header>
+  <h1>Excel <span>Color</span> Sorter</h1>
+  <p class="subtitle">Sort cell content by background color &mdash; white excluded</p>
+</header>
 
-<textarea id="output" rows="20" cols="100"></textarea>
+<div class="paste-zone" id="pasteZone" tabindex="0">
+  <p>Click here, then press <span class="key">Ctrl+A</span> <span class="key">Ctrl+C</span> in Excel, then <span class="key">Ctrl+V</span> here</p>
+  <p style="margin-top:8px; font-size:0.75rem;">Works best when pasted from Excel (retains HTML color data)</p>
+  <textarea id="hiddenPaste" readonly></textarea>
+</div>
 
-<br><br>
+<div class="status" id="status"></div>
+<button class="clear-btn" id="clearBtn" style="display:none">✕ Clear results</button>
+<div class="results" id="results"></div>
+<div class="empty-state" id="emptyState" style="display:none">No colored cells found (all cells had white or no background).</div>
 
-<button onclick="download()">Download CSV</button>
+<div class="debug-box" id="debugBox">
+  <div class="debug-header">
+    <span>Raw clipboard HTML (for debugging)</span>
+    <button class="debug-toggle" id="debugToggle">Show</button>
+  </div>
+  <div class="debug-content" id="debugContent" style="display:none"></div>
+</div>
 
 <script>
+const pasteZone = document.getElementById('pasteZone');
+const results = document.getElementById('results');
+const status = document.getElementById('status');
+const clearBtn = document.getElementById('clearBtn');
+const emptyState = document.getElementById('emptyState');
+const debugBox = document.getElementById('debugBox');
+const debugContent = document.getElementById('debugContent');
+const debugToggle = document.getElementById('debugToggle');
 
-let result = {};
+pasteZone.addEventListener('click', () => pasteZone.focus());
+document.addEventListener('paste', handlePaste);
 
-document.addEventListener("paste", function(e){
-
-let html = e.clipboardData.getData("text/html");
-
-if(!html){
-
-alert("Copy from Excel first");
-
-return;
-
-}
-
-let parser = new DOMParser();
-
-let doc = parser.parseFromString(html, "text/html");
-
-let cells = doc.querySelectorAll("td");
-
-result = {};
-
-cells.forEach(cell=>{
-
-let bg = cell.style.backgroundColor;
-
-let text = cell.innerText.trim();
-
-if(text=="" ) return;
-
-if(bg=="" || bg=="white" || bg=="rgb(255, 255, 255)")
-return;
-
-
-if(!result[bg])
-result[bg]=[];
-
-result[bg].push(text);
-
+debugToggle.addEventListener('click', () => {
+  const visible = debugContent.style.display !== 'none';
+  debugContent.style.display = visible ? 'none' : 'block';
+  debugToggle.textContent = visible ? 'Show' : 'Hide';
 });
 
+function handlePaste(e) {
+  const html = e.clipboardData.getData('text/html');
+  const text = e.clipboardData.getData('text/plain');
 
-display();
+  // Show raw HTML for debugging
+  if (html) {
+    debugBox.classList.add('visible');
+    debugContent.textContent = html.slice(0, 8000) + (html.length > 8000 ? '\n...(truncated)' : '');
+  }
 
+  if (html && (html.includes('<td') || html.includes('<TD'))) {
+    processHTMLData(html);
+  } else if (text) {
+    setStatus('Pasted as plain text — no color data available. Please copy directly from Excel.', 'err');
+  } else {
+    setStatus('No usable data found in clipboard.', 'err');
+  }
+}
+
+// ── Color parsing ──────────────────────────────────────────────────────────
+
+// Named color → rgb lookup (common Excel theme colors)
+const NAMED_COLORS = {
+  black:'0,0,0', white:'255,255,255', red:'255,0,0', lime:'0,255,0',
+  blue:'0,0,255', yellow:'255,255,0', cyan:'0,255,255', magenta:'255,0,255',
+  silver:'192,192,192', gray:'128,128,128', grey:'128,128,128',
+  maroon:'128,0,0', olive:'128,128,0', green:'0,128,0', purple:'128,0,128',
+  teal:'0,128,128', navy:'0,0,128', orange:'255,165,0', coral:'255,127,80',
+  salmon:'250,128,114', khaki:'240,230,140', violet:'238,130,238',
+  indigo:'75,0,130', turquoise:'64,224,208', tan:'210,180,140',
+  chocolate:'210,105,30', tomato:'255,99,71', orchid:'218,112,214',
+  aqua:'0,255,255', fuchsia:'255,0,255', lime:'0,255,0',
+};
+
+function namedToRgb(name) {
+  const entry = NAMED_COLORS[name.toLowerCase()];
+  if (entry) {
+    const [r,g,b] = entry.split(',').map(Number);
+    return {r,g,b};
+  }
+  return null;
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  if (hex.length !== 6) return null;
+  return {
+    r: parseInt(hex.slice(0,2),16),
+    g: parseInt(hex.slice(2,4),16),
+    b: parseInt(hex.slice(4,6),16)
+  };
+}
+
+function isWhiteish(r,g,b) {
+  return r > 235 && g > 235 && b > 235;
+}
+
+function normalizeColor(colorStr) {
+  if (!colorStr) return null;
+  colorStr = colorStr.trim().replace(/['"]/g,'');
+
+  // Skip Excel junk values
+  const skip = ['auto','transparent','none','windowtext','window','inherit','initial',''];
+  if (skip.includes(colorStr.toLowerCase())) return null;
+
+  // rgb(r,g,b) or rgba(r,g,b,a)
+  const rgbMatch = colorStr.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rgbMatch) {
+    const r=+rgbMatch[1], g=+rgbMatch[2], b=+rgbMatch[3];
+    if (isWhiteish(r,g,b)) return null;
+    return `rgb(${r},${g},${b})`;
+  }
+
+  // hex
+  if (colorStr.startsWith('#')) {
+    const rgb = hexToRgb(colorStr);
+    if (!rgb) return null;
+    if (isWhiteish(rgb.r,rgb.g,rgb.b)) return null;
+    return `#${colorStr.replace('#','').toLowerCase().slice(0,6)}`;
+  }
+
+  // named color
+  const named = namedToRgb(colorStr);
+  if (named) {
+    if (isWhiteish(named.r,named.g,named.b)) return null;
+    return `rgb(${named.r},${named.g},${named.b})`;
+  }
+
+  // Unknown format — return as-is (exclude obvious white keywords)
+  if (colorStr.toLowerCase() === 'white' || colorStr === 'fff' || colorStr === 'ffffff') return null;
+  return colorStr;
+}
+
+// ── Extraction strategies ──────────────────────────────────────────────────
+
+function extractBgFromStyle(styleStr) {
+  if (!styleStr) return null;
+
+  // Try every background-related property, most specific first
+  const patterns = [
+    /mso-highlight\s*:\s*([^;]+)/i,
+    /background-color\s*:\s*([^;]+)/i,
+    /background\s*:\s*([^;]+)/i,
+    /mso-background-source\s*:\s*([^;]+)/i,
+  ];
+
+  for (const pat of patterns) {
+    const m = styleStr.match(pat);
+    if (m) {
+      // background shorthand can have multiple values; grab the first color token
+      const value = m[1].trim();
+      // Try to extract just the color part from shorthand (e.g., "#ffff00 none repeat")
+      const colorToken = value.split(/\s+/)[0];
+      const color = normalizeColor(colorToken) || normalizeColor(value);
+      if (color) return color;
+    }
+  }
+  return null;
+}
+
+function getCellBg(cell) {
+  // 1. inline style attribute
+  const styleAttr = cell.getAttribute('style') || '';
+  const fromStyle = extractBgFromStyle(styleAttr);
+  if (fromStyle) return fromStyle;
+
+  // 2. bgcolor attribute (older Excel HTML)
+  const bgcolor = cell.getAttribute('bgcolor');
+  if (bgcolor) {
+    const color = normalizeColor(bgcolor);
+    if (color) return color;
+  }
+
+  // 3. Walk up to see if a parent tr/table has bgcolor (rare but happens)
+  // Skip this to avoid false inheritance — only direct cell matters
+
+  // 4. Try computed style via DOM (only works if inserted into live document)
+  // We'd need to temporarily add to DOM — let's try it
+  try {
+    document.body.appendChild(cell);
+    const computed = window.getComputedStyle(cell).backgroundColor;
+    document.body.removeChild(cell);
+    if (computed && computed !== 'rgba(0, 0, 0, 0)') {
+      return normalizeColor(computed);
+    }
+  } catch(e) {}
+
+  return null;
+}
+
+// ── Main processing ────────────────────────────────────────────────────────
+
+function processHTMLData(html) {
+  // Also try parsing raw style tags / Excel XML color data
+  // Excel embeds colors in <style> blocks as class-based rules
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // Build a map of class → background-color from <style> blocks
+  const classColorMap = {};
+  doc.querySelectorAll('style').forEach(styleEl => {
+    const css = styleEl.textContent;
+    // Match patterns like:  .xl123 {background:#ffff00;}
+    const ruleRegex = /\.([a-zA-Z0-9_-]+)\s*\{([^}]+)\}/g;
+    let m;
+    while ((m = ruleRegex.exec(css)) !== null) {
+      const className = m[1];
+      const declarations = m[2];
+      const bg = extractBgFromStyle(declarations);
+      if (bg) classColorMap[className] = bg;
+    }
+  });
+
+  const cells = doc.querySelectorAll('td, th');
+  if (cells.length === 0) {
+    setStatus('No table cells found in pasted content.', 'err');
+    return;
+  }
+
+  const colorMap = new Map();
+  let skipped = 0;
+
+  cells.forEach(cell => {
+    const text = cell.textContent.trim();
+    if (!text) return;
+
+    let bg = null;
+
+    // 1. Check inline style
+    const styleAttr = cell.getAttribute('style') || '';
+    bg = extractBgFromStyle(styleAttr);
+
+    // 2. Check class-based rules from <style> block
+    if (!bg) {
+      const classes = (cell.getAttribute('class') || '').split(/\s+/);
+      for (const cls of classes) {
+        if (classColorMap[cls]) { bg = classColorMap[cls]; break; }
+      }
+    }
+
+    // 3. bgcolor attribute
+    if (!bg) {
+      const bgcolor = cell.getAttribute('bgcolor');
+      if (bgcolor) bg = normalizeColor(bgcolor);
+    }
+
+    // 4. Check parent <tr> style/bgcolor (row highlight)
+    if (!bg) {
+      const tr = cell.closest('tr');
+      if (tr) {
+        bg = extractBgFromStyle(tr.getAttribute('style') || '');
+        if (!bg) {
+          const trBg = tr.getAttribute('bgcolor');
+          if (trBg) bg = normalizeColor(trBg);
+        }
+        // Also check tr class
+        if (!bg) {
+          const trClasses = (tr.getAttribute('class') || '').split(/\s+/);
+          for (const cls of trClasses) {
+            if (classColorMap[cls]) { bg = classColorMap[cls]; break; }
+          }
+        }
+      }
+    }
+
+    if (!bg) { skipped++; return; }
+
+    if (!colorMap.has(bg)) colorMap.set(bg, []);
+    colorMap.get(bg).push(text);
+  });
+
+  renderResults(colorMap, cells.length, skipped);
+}
+
+// ── Rendering ──────────────────────────────────────────────────────────────
+
+// Persist color names across pastes
+const colorNames = {};
+
+// Colors to always exclude (tooltip color in Excel etc.)
+const EXCLUDED_COLORS = ['#ffffe1','#ffffe0','rgb(255,255,225)','rgb(255,255,224)'];
+
+function isExcluded(color) {
+  const c = color.toLowerCase().replace(/\s/g,'');
+  return EXCLUDED_COLORS.some(ex => ex === c);
+}
+
+function renderResults(colorMap, totalCells, skipped) {
+  results.innerHTML = '';
+  emptyState.style.display = 'none';
+
+  // Filter excluded colors
+  for (const key of [...colorMap.keys()]) {
+    if (isExcluded(key)) { colorMap.delete(key); skipped++; }
+  }
+
+  if (colorMap.size === 0) {
+    emptyState.style.display = 'block';
+    setStatus(`Processed ${totalCells} cells — none had a detectable non-white background. Check the raw HTML below to diagnose.`, '');
+    clearBtn.style.display = 'block';
+    return;
+  }
+
+  setStatus(`Found ${colorMap.size} color group${colorMap.size !== 1 ? 's' : ''} across ${totalCells} cells (${skipped} white/uncoloured skipped).`, 'ok');
+  clearBtn.style.display = 'block';
+
+  // Sort by luminance dark → light
+  const sorted = [...colorMap.entries()].sort((a, b) => getLuminance(a[0]) - getLuminance(b[0]));
+
+  sorted.forEach(([color, texts], i) => {
+    const group = document.createElement('div');
+    group.className = 'color-group';
+    group.style.animationDelay = `${i * 0.05}s`;
+
+    const savedName = colorNames[color] || '';
+
+    // Build rows of 3 cells each
+    const rows = [];
+    for (let r = 0; r < texts.length; r += 3) {
+      const chunk = texts.slice(r, r + 3);
+      rows.push(`<div class="cells-grid">${chunk.map(t => `<div class="cell-item">${escapeHTML(t)}</div>`).join('')}</div>`);
+    }
+
+    group.innerHTML = `
+      <div class="color-group-header">
+        <div class="color-swatch" style="background:${color}"></div>
+        <div class="color-name-wrap">
+          <input class="color-name-input" type="text" placeholder="Name this colour…" value="${escapeHTML(savedName)}" data-color="${escapeHTML(color)}" />
+          <span class="color-label">${escapeHTML(color)}</span>
+        </div>
+        <span class="color-count">${texts.length} cell${texts.length !== 1 ? 's' : ''}</span>
+      </div>
+      ${rows.join('')}
+    `;
+
+    group.querySelector('.color-name-input').addEventListener('input', function() {
+      colorNames[this.dataset.color] = this.value;
+    });
+
+    results.appendChild(group);
+  });
+}
+
+function getLuminance(color) {
+  const nums = color.match(/\d+/g);
+  if (!nums || nums.length < 3) return 999;
+  return 0.299 * +nums[0] + 0.587 * +nums[1] + 0.114 * +nums[2];
+}
+
+function escapeHTML(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function setStatus(msg, type) {
+  status.textContent = msg;
+  status.className = 'status ' + (type || '');
+}
+
+clearBtn.addEventListener('click', () => {
+  results.innerHTML = '';
+  emptyState.style.display = 'none';
+  status.textContent = '';
+  clearBtn.style.display = 'none';
+  debugBox.classList.remove('visible');
+  debugContent.textContent = '';
+  debugContent.style.display = 'none';
+  debugToggle.textContent = 'Show';
 });
-
-
-
-function display(){
-
-let text="";
-
-for(let colour in result){
-
-text+="COLOUR: "+colour+"\n";
-
-result[colour].forEach(item=>{
-
-text+=item+"\n";
-
-});
-
-text+="\n";
-
-}
-
-output.value=text;
-
-}
-
-
-
-function download(){
-
-let csv="Colour,Text\n";
-
-for(let colour in result){
-
-result[colour].forEach(item=>{
-
-csv+=colour+',"'+item+'"\n';
-
-});
-
-}
-
-let blob=new Blob([csv]);
-
-let a=document.createElement("a");
-
-a.href=URL.createObjectURL(blob);
-
-a.download="excel_colours.csv";
-
-a.click();
-
-}
-
 </script>
-
 </body>
 </html>
