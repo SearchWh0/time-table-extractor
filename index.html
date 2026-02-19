@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>Timetable Extractor</title>
+<title>Timetable Extractor v2</title>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
@@ -14,9 +14,9 @@
 
 <input type="file" id="upload">
 
-<p>OR press Ctrl+V to paste screenshot</p>
+<p>OR press Ctrl+V to paste</p>
 
-<canvas id="canvas"></canvas>
+<canvas id="canvas" style="border:1px solid black;"></canvas>
 
 <br><br>
 
@@ -24,15 +24,15 @@ Selected Colour:
 
 <input type="color" id="picker">
 
+<span id="status">None</span>
+
+<br><br>
+
 <button onclick="extract()">Extract Text</button>
 
 <br><br>
 
 <textarea id="output" rows="20" cols="80"></textarea>
-
-<br>
-
-<button onclick="download()">Download TXT</button>
 
 <script>
 
@@ -42,50 +42,47 @@ let ctx = canvas.getContext("2d");
 let selectedColor = null;
 
 
+
+// LOAD IMAGE
+
+function loadImage(src){
+
+let img = new Image();
+
+img.onload = function(){
+
+canvas.width = img.width;
+canvas.height = img.height;
+
+ctx.drawImage(img,0,0);
+
+}
+
+img.src = src;
+
+}
+
+
+
 // FILE UPLOAD
 
 upload.onchange = function(e){
 
-let img = new Image();
-
-img.onload = function(){
-
-canvas.width = img.width;
-canvas.height = img.height;
-
-ctx.drawImage(img,0,0);
-
-}
-
-img.src = URL.createObjectURL(e.target.files[0]);
+loadImage(URL.createObjectURL(e.target.files[0]));
 
 }
 
 
-// PASTE IMAGE
+
+// PASTE
 
 document.addEventListener("paste", function(e){
 
-let items = e.clipboardData.items;
+for (let item of e.clipboardData.items){
 
-for (let item of items){
+if(item.type.includes("image")){
 
-if (item.type.indexOf("image") !== -1){
-
-let file = item.getAsFile();
-
-let img = new Image();
-
-img.onload = function(){
-
-canvas.width = img.width;
-canvas.height = img.height;
-
-ctx.drawImage(img,0,0);
-
-}
-
-img.src = URL.createObjectURL(file);
+loadImage(URL.createObjectURL(item.getAsFile()));
 
 }
 
@@ -98,86 +95,95 @@ img.src = URL.createObjectURL(file);
 
 // PICK COLOUR
 
-canvas.onclick = function(e){
+canvas.addEventListener("click", function(e){
 
-let pixel = ctx.getImageData(e.offsetX, e.offsetY, 1, 1).data;
+let pixel = ctx.getImageData(e.offsetX, e.offsetY,1,1).data;
 
-selectedColor = pixel;
+selectedColor = {
 
-let hex = "#" +
-((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2])
+r:pixel[0],
+g:pixel[1],
+b:pixel[2]
+
+};
+
+let hex = "#"+
+((1<<24)+(pixel[0]<<16)+(pixel[1]<<8)+pixel[2])
 .toString(16).slice(1);
 
-picker.value = hex;
+picker.value=hex;
 
-}
+status.innerHTML="Selected: "+hex;
+
+});
 
 
 
 
-// EXTRACT TEXT
+// EXTRACT
 
 function extract(){
 
-if(!selectedColor){
+if(selectedColor===null){
 
-alert("Click a colour first");
+alert("Select a colour first");
 
 return;
 
 }
+
+
+// create copy
 
 let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
 
 let data = imgData.data;
 
 
-// isolate selected colour
-
 for(let i=0;i<data.length;i+=4){
 
-let r=data[i];
-let g=data[i+1];
-let b=data[i+2];
+let diff=
 
-let diff =
-Math.abs(r-selectedColor[0])+
-Math.abs(g-selectedColor[1])+
-Math.abs(b-selectedColor[2]);
+Math.abs(data[i]-selectedColor.r)+
+Math.abs(data[i+1]-selectedColor.g)+
+Math.abs(data[i+2]-selectedColor.b);
 
-if(diff>120){
 
-data[i]=255;
-data[i+1]=255;
-data[i+2]=255;
-
-}else{
+if(diff<150){
 
 data[i]=0;
 data[i+1]=0;
 data[i+2]=0;
 
-}
+}else{
+
+data[i]=255;
+data[i+1]=255;
+data[i+2]=255;
 
 }
 
+}
 
-ctx.putImageData(imgData,0,0);
+
+let tempCanvas=document.createElement("canvas");
+
+tempCanvas.width=canvas.width;
+tempCanvas.height=canvas.height;
+
+let tempCtx=tempCanvas.getContext("2d");
+
+tempCtx.putImageData(imgData,0,0);
+
 
 
 // OCR
 
 Tesseract.recognize(
 
-canvas,
+tempCanvas,
 
-"eng",
-
-{
-
-tessedit_pageseg_mode: 6
-
-}
+"eng"
 
 ).then(result=>{
 
@@ -187,23 +193,6 @@ output.value=result.data.text;
 
 
 }
-
-
-
-function download(){
-
-let blob = new Blob([output.value]);
-
-let a=document.createElement("a");
-
-a.href=URL.createObjectURL(blob);
-
-a.download="timetable.txt";
-
-a.click();
-
-}
-
 
 </script>
 
