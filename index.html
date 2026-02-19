@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>Timetable Extractor v2</title>
+<title>Timetable Extractor v3</title>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
@@ -14,9 +14,9 @@
 
 <input type="file" id="upload">
 
-<p>OR press Ctrl+V to paste</p>
+<p>OR press Ctrl+V</p>
 
-<canvas id="canvas" style="border:1px solid black;"></canvas>
+<canvas id="canvas" style="border:1px solid black; max-width:100%; height:auto;"></canvas>
 
 <br><br>
 
@@ -34,16 +34,16 @@ Selected Colour:
 
 <textarea id="output" rows="20" cols="80"></textarea>
 
+
 <script>
 
 let canvas = document.getElementById("canvas");
+
 let ctx = canvas.getContext("2d");
 
 let selectedColor = null;
 
 
-
-// LOAD IMAGE
 
 function loadImage(src){
 
@@ -64,21 +64,18 @@ img.src = src;
 
 
 
-// FILE UPLOAD
+// upload
 
-upload.onchange = function(e){
-
+upload.onchange = e =>
 loadImage(URL.createObjectURL(e.target.files[0]));
 
-}
 
 
-
-// PASTE
+// paste
 
 document.addEventListener("paste", function(e){
 
-for (let item of e.clipboardData.items){
+for(let item of e.clipboardData.items){
 
 if(item.type.includes("image")){
 
@@ -93,38 +90,43 @@ loadImage(URL.createObjectURL(item.getAsFile()));
 
 
 
-// PICK COLOUR
+// FIXED CLICK DETECTION
 
 canvas.addEventListener("click", function(e){
 
-let pixel = ctx.getImageData(e.offsetX, e.offsetY,1,1).data;
+let rect = canvas.getBoundingClientRect();
 
-selectedColor = {
+let scaleX = canvas.width / rect.width;
+let scaleY = canvas.height / rect.height;
 
-r:pixel[0],
-g:pixel[1],
-b:pixel[2]
+let x = Math.floor((e.clientX - rect.left) * scaleX);
+let y = Math.floor((e.clientY - rect.top) * scaleY);
 
-};
+let pixel = ctx.getImageData(x,y,1,1).data;
 
-let hex = "#"+
+selectedColor = pixel;
+
+let hex =
+"#"+
 ((1<<24)+(pixel[0]<<16)+(pixel[1]<<8)+pixel[2])
-.toString(16).slice(1);
+.toString(16)
+.slice(1);
 
-picker.value=hex;
+picker.value = hex;
 
-status.innerHTML="Selected: "+hex;
+document.getElementById("status").innerHTML =
+"Selected: "+hex;
 
 });
 
 
 
 
-// EXTRACT
+// extract
 
 function extract(){
 
-if(selectedColor===null){
+if(!selectedColor){
 
 alert("Select a colour first");
 
@@ -132,67 +134,19 @@ return;
 
 }
 
-
-// create copy
-
-let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-
-let data = imgData.data;
+output.value="Processing...";
 
 
-for(let i=0;i<data.length;i+=4){
+Tesseract.recognize(canvas,"eng")
 
-let diff=
-
-Math.abs(data[i]-selectedColor.r)+
-Math.abs(data[i+1]-selectedColor.g)+
-Math.abs(data[i+2]-selectedColor.b);
-
-
-if(diff<150){
-
-data[i]=0;
-data[i+1]=0;
-data[i+2]=0;
-
-}else{
-
-data[i]=255;
-data[i+1]=255;
-data[i+2]=255;
-
-}
-
-}
-
-
-let tempCanvas=document.createElement("canvas");
-
-tempCanvas.width=canvas.width;
-tempCanvas.height=canvas.height;
-
-let tempCtx=tempCanvas.getContext("2d");
-
-tempCtx.putImageData(imgData,0,0);
-
-
-
-// OCR
-
-Tesseract.recognize(
-
-tempCanvas,
-
-"eng"
-
-).then(result=>{
+.then(result=>{
 
 output.value=result.data.text;
 
 });
 
-
 }
+
 
 </script>
 
