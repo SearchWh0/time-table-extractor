@@ -1,155 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>Timetable Extractor v3</title>
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-
+<title>Excel Colour Extractor v1</title>
 </head>
 
 <body>
 
-<h2>Upload OR Paste Image</h2>
+<h2>Paste Excel (Ctrl+V)</h2>
 
-<input type="file" id="upload">
-
-<p>OR press Ctrl+V</p>
-
-<canvas id="canvas" style="border:1px solid black; max-width:100%; height:auto;"></canvas>
+<textarea id="output" rows="20" cols="100"></textarea>
 
 <br><br>
 
-Selected Colour:
-
-<input type="color" id="picker">
-
-<span id="status">None</span>
-
-<br><br>
-
-<button onclick="extract()">Extract Text</button>
-
-<br><br>
-
-<textarea id="output" rows="20" cols="80"></textarea>
-
+<button onclick="download()">Download CSV</button>
 
 <script>
 
-let canvas = document.getElementById("canvas");
-
-let ctx = canvas.getContext("2d");
-
-let selectedColor = null;
-
-
-
-function loadImage(src){
-
-let img = new Image();
-
-img.onload = function(){
-
-canvas.width = img.width;
-canvas.height = img.height;
-
-ctx.drawImage(img,0,0);
-
-}
-
-img.src = src;
-
-}
-
-
-
-// upload
-
-upload.onchange = e =>
-loadImage(URL.createObjectURL(e.target.files[0]));
-
-
-
-// paste
+let result = {};
 
 document.addEventListener("paste", function(e){
 
-for(let item of e.clipboardData.items){
+let html = e.clipboardData.getData("text/html");
 
-if(item.type.includes("image")){
+if(!html){
 
-loadImage(URL.createObjectURL(item.getAsFile()));
-
-}
-
-}
-
-});
-
-
-
-
-// FIXED CLICK DETECTION
-
-canvas.addEventListener("click", function(e){
-
-let rect = canvas.getBoundingClientRect();
-
-let scaleX = canvas.width / rect.width;
-let scaleY = canvas.height / rect.height;
-
-let x = Math.floor((e.clientX - rect.left) * scaleX);
-let y = Math.floor((e.clientY - rect.top) * scaleY);
-
-let pixel = ctx.getImageData(x,y,1,1).data;
-
-selectedColor = pixel;
-
-let hex =
-"#"+
-((1<<24)+(pixel[0]<<16)+(pixel[1]<<8)+pixel[2])
-.toString(16)
-.slice(1);
-
-picker.value = hex;
-
-document.getElementById("status").innerHTML =
-"Selected: "+hex;
-
-});
-
-
-
-
-// extract
-
-function extract(){
-
-if(!selectedColor){
-
-alert("Select a colour first");
+alert("Copy from Excel first");
 
 return;
 
 }
 
-output.value="Processing...";
+let parser = new DOMParser();
+
+let doc = parser.parseFromString(html, "text/html");
+
+let cells = doc.querySelectorAll("td");
+
+result = {};
+
+cells.forEach(cell=>{
+
+let bg = cell.style.backgroundColor;
+
+let text = cell.innerText.trim();
+
+if(text=="" ) return;
+
+if(bg=="" || bg=="white" || bg=="rgb(255, 255, 255)")
+return;
 
 
-Tesseract.recognize(canvas,"eng")
+if(!result[bg])
+result[bg]=[];
 
-.then(result=>{
+result[bg].push(text);
 
-output.value=result.data.text;
+});
+
+
+display();
+
+});
+
+
+
+function display(){
+
+let text="";
+
+for(let colour in result){
+
+text+="COLOUR: "+colour+"\n";
+
+result[colour].forEach(item=>{
+
+text+=item+"\n";
+
+});
+
+text+="\n";
+
+}
+
+output.value=text;
+
+}
+
+
+
+function download(){
+
+let csv="Colour,Text\n";
+
+for(let colour in result){
+
+result[colour].forEach(item=>{
+
+csv+=colour+',"'+item+'"\n';
 
 });
 
 }
 
+let blob=new Blob([csv]);
+
+let a=document.createElement("a");
+
+a.href=URL.createObjectURL(blob);
+
+a.download="excel_colours.csv";
+
+a.click();
+
+}
 
 </script>
 
 </body>
-
 </html>
