@@ -10,449 +10,109 @@
 
 /* ── Theme tokens ── */
 [data-theme="light"] {
-  --bg:        #f4f1ec;
-  --surface:   #ffffff;
-  --surface2:  #faf8f5;
-  --border:    #e4ddd4;
-  --text:      #18160f;
-  --muted:     #9e9890;
-  --soft:      #ede9e2;
-  --header-bg: #18160f;
-  --header-fg: #ffffff;
-  --shadow:    0 2px 10px rgba(0,0,0,0.06);
-  --shadow-lg: 0 8px 28px rgba(0,0,0,0.11);
-  --toggle-track: #d6d0c8;
-  --toggle-thumb: #ffffff;
+  --bg: #f4f1ec; --surface: #ffffff; --surface2: #faf8f5;
+  --border: #e4ddd4; --text: #18160f; --muted: #9e9890; --soft: #ede9e2;
+  --header-bg: #18160f; --header-fg: #ffffff;
+  --shadow: 0 2px 10px rgba(0,0,0,0.06); --shadow-lg: 0 8px 28px rgba(0,0,0,0.11);
+  --toggle-track: #d6d0c8; --toggle-thumb: #ffffff;
 }
 [data-theme="dark"] {
-  --bg:        #111010;
-  --surface:   #1c1b1a;
-  --surface2:  #232220;
-  --border:    #2e2c29;
-  --text:      #f0ece4;
-  --muted:     #6b6760;
-  --soft:      #252320;
-  --header-bg: #0c0b0a;
-  --header-fg: #f0ece4;
-  --shadow:    0 2px 10px rgba(0,0,0,0.3);
-  --shadow-lg: 0 8px 28px rgba(0,0,0,0.4);
-  --toggle-track: #3a3835;
-  --toggle-thumb: #f0ece4;
+  --bg:#111010; --surface:#1c1b1a; --surface2:#232220;
+  --border:#2e2c29; --text:#f0ece4; --muted:#6b6760; --soft:#252320;
+  --header-bg:#0c0b0a; --header-fg:#f0ece4;
+  --shadow:0 2px 10px rgba(0,0,0,0.3); --shadow-lg:0 8px 28px rgba(0,0,0,0.4);
+  --toggle-track:#3a3835; --toggle-thumb:#f0ece4;
 }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  min-height: 100vh;
-  transition: background .25s, color .25s;
-}
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; min-height: 100vh; transition: background .25s, color .25s; }
+.site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 22px 40px; display: flex; align-items: center; gap: 20px; transition: background .25s, border-color .25s; }
+.site-title { font-size: 2rem; font-weight: 900; color: var(--text); letter-spacing: -0.04em; line-height: 1; }
+.site-day { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-left: auto; }
 
-/* ── Header ── */
-.site-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 22px 40px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  transition: background .25s, border-color .25s;
-}
-.site-title {
-  font-size: 2rem;
-  font-weight: 900;
-  color: var(--text);
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-.site-day {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-left: auto;
-}
-
-/* ── Dark mode toggle ── */
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  user-select: none;
-  flex-shrink: 0;
-}
-.toggle-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.68rem;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.toggle-track {
-  width: 40px;
-  height: 22px;
-  border-radius: 11px;
-  background: var(--toggle-track);
-  position: relative;
-  transition: background .2s;
-  flex-shrink: 0;
-}
-.toggle-track::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: var(--toggle-thumb);
-  transition: transform .2s, background .2s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-}
+/* Dark mode toggle */
+.theme-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; flex-shrink: 0; }
+.toggle-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.toggle-track { width: 40px; height: 22px; border-radius: 11px; background: var(--toggle-track); position: relative; transition: background .2s; flex-shrink: 0; }
+.toggle-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--toggle-thumb); transition: transform .2s, background .2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 [data-theme="dark"] .toggle-track { background: #c8f542; }
 [data-theme="dark"] .toggle-track::after { transform: translateX(18px); background: #111010; }
 
-/* ── Paste zone ── */
-.paste-wrap {
-  max-width: 680px;
-  margin: 72px auto;
-  padding: 0 24px;
-  text-align: center;
-}
-.paste-zone {
-  border: 2px dashed var(--border);
-  border-radius: 20px;
-  padding: 64px 48px;
-  cursor: pointer;
-  transition: border-color .2s, background .2s;
-  background: var(--surface);
-}
+/* Paste zone */
+.paste-wrap { max-width: 680px; margin: 72px auto; padding: 0 24px; text-align: center; }
+.paste-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 64px 48px; cursor: pointer; transition: border-color .2s, background .2s; background: var(--surface); }
 .paste-zone:hover { border-color: var(--text); background: var(--soft); }
 .paste-icon { font-size: 2.8rem; margin-bottom: 20px; }
 .paste-zone h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
 .paste-zone p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
-.key {
-  display: inline-block;
-  background: var(--soft);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 1px 8px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.76rem;
-  color: var(--text);
-}
+.key { display: inline-block; background: var(--soft); border: 1px solid var(--border); border-radius: 5px; padding: 1px 8px; font-family: 'DM Mono', monospace; font-size: 0.76rem; color: var(--text); }
 
-/* ── App shell ── */
+/* App shell */
 .app { display: none; }
 .app.visible { display: block; }
 
-/* ── Sticky nav ── */
-.class-nav-wrap {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 40px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow);
-  transition: background .25s, border-color .25s;
-}
-.class-nav {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 14px 0;
-  scrollbar-width: none;
-}
+/* Class nav */
+.class-nav-wrap { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); transition: background .25s, border-color .25s; }
+.class-nav { display: flex; gap: 6px; overflow-x: auto; padding: 14px 0; scrollbar-width: none; }
 .class-nav::-webkit-scrollbar { display: none; }
-
-.class-btn {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 11px 20px;
-  border-radius: 11px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: all .18s ease;
-  background: var(--soft);
-  color: var(--text);
-}
-.class-btn .btn-dot {
-  width: 13px; height: 13px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1.5px solid rgba(0,0,0,0.1);
-}
+.class-btn { display: flex; align-items: center; gap: 9px; padding: 11px 20px; border-radius: 11px; border: 2px solid transparent; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 600; white-space: nowrap; transition: all .18s ease; background: var(--soft); color: var(--text); }
+.class-btn .btn-dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.1); }
 .class-btn:hover { background: var(--border); transform: translateY(-1px); }
-.class-btn.active {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-}
+.class-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
 [data-theme="dark"] .class-btn.active { color: var(--header-bg); }
 .class-btn.active .btn-dot { border-color: rgba(255,255,255,0.25); }
+.btn-label { outline: none; background: transparent; border: none; font: inherit; color: inherit; cursor: inherit; min-width: 40px; max-width: 160px; pointer-events: none; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; transition: background .15s; }
+.btn-label.editing { pointer-events: auto; cursor: text; background: rgba(255,255,255,0.15); text-decoration: underline; text-decoration-style: dashed; text-underline-offset: 3px; }
 
-.btn-label {
-  outline: none;
-  background: transparent;
-  border: none;
-  font: inherit;
-  color: inherit;
-  cursor: inherit;
-  min-width: 40px;
-  max-width: 160px;
-  pointer-events: none;        /* blocked by default — double-click on btn activates */
-  border-radius: 3px;
-  padding: 1px 3px;
-  margin: -1px -3px;
-  transition: background .15s;
-}
-.btn-label.editing {
-  pointer-events: auto;
-  cursor: text;
-  background: rgba(255,255,255,0.15);
-  text-decoration: underline;
-  text-decoration-style: dashed;
-  text-underline-offset: 3px;
-}
-
-/* ── Toolbar below nav ── */
-.toolbar {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 14px 24px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.status-bar {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--muted);
-}
+/* Toolbar */
+.toolbar { max-width: 1000px; margin: 0 auto; padding: 14px 24px 0; display: flex; align-items: center; justify-content: space-between; }
+.status-bar { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); }
 .status-bar.err { color: #e05151; }
-.clear-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.8rem;
-  padding: 7px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: border-color .2s, color .2s;
-}
+.clear-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 0.8rem; padding: 7px 16px; border-radius: 8px; cursor: pointer; transition: border-color .2s, color .2s; }
 .clear-btn:hover { border-color: #e05151; color: #e05151; }
 
-/* ── Content area ── */
-.content-area {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 36px 24px 100px;
-}
-
+/* Content area */
+.content-area { max-width: 1000px; margin: 0 auto; padding: 36px 24px 100px; }
 .panel { display: none; }
 .panel.active { display: block; animation: panelIn .22s ease both; }
-@keyframes panelIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Panel header ── */
-.panel-header {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-}
-.panel-colour-bar {
-  width: 7px;
-  height: 58px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-.panel-title {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-.panel-subtitle {
-  font-size: 0.74rem;
-  color: var(--muted);
-  font-family: 'DM Mono', monospace;
-  margin-top: 4px;
-  letter-spacing: 0.02em;
-}
+@keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.panel-header { display: flex; align-items: center; gap: 18px; margin-bottom: 32px; flex-wrap: wrap; }
+.panel-colour-bar { width: 7px; height: 58px; border-radius: 4px; flex-shrink: 0; }
+.panel-title { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.panel-subtitle { font-size: 0.74rem; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 4px; letter-spacing: 0.02em; }
 .panel-actions { margin-left: auto; }
-.copy-btn {
-  background: var(--text);
-  color: var(--bg);
-  border: none;
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 11px 22px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: opacity .15s, transform .15s;
-  white-space: nowrap;
-}
+.copy-btn { background: var(--text); color: var(--bg); border: none; font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; padding: 11px 22px; border-radius: 10px; cursor: pointer; transition: opacity .15s, transform .15s; white-space: nowrap; }
 .copy-btn:hover { opacity: 0.82; transform: translateY(-1px); }
 .copy-btn.copied { background: #22a85a; color: #fff; }
 
-/* ── Period grid ── */
-.period-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.period-row {
-  display: grid;
-  grid-template-columns: 6px 70px 28px 1fr 1fr 1fr;
-  align-items: stretch;
-  background: var(--surface);
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  transition: box-shadow .15s, border-color .15s;
-  min-height: 64px;
-}
+/* Period grid */
+.period-grid { display: flex; flex-direction: column; gap: 12px; }
+.period-row { display: grid; grid-template-columns: 6px 70px 28px 1fr 1fr 1fr; align-items: stretch; background: var(--surface); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); transition: box-shadow .15s, border-color .15s; min-height: 64px; }
 .period-row:hover { box-shadow: var(--shadow-lg); border-color: var(--muted); }
 .period-row.empty-row { opacity: 0.28; }
 .period-row.empty-row:hover { box-shadow: var(--shadow); border-color: var(--border); }
-
-.period-row > div {
-  display: flex;
-  align-items: center;
-  padding: 18px 20px;
-}
-/* Remove double borders — use border-left on cells after first */
+.period-row > div { display: flex; align-items: center; padding: 18px 20px; }
 .period-row > div + div { border-left: 1px solid var(--border); }
+.accent-bar { padding: 0 !important; border-left: none !important; width: 6px; flex-shrink: 0; }
+.cell-period { background: var(--surface2); font-family: 'DM Mono', monospace; font-size: 0.8rem; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; justify-content: center; flex-shrink: 0; }
+.cell-period.has-data { color: var(--text); font-weight: 700; font-size: 0.85rem; }
+.cell-dash { color: var(--border); justify-content: center; font-size: 0.75rem; padding: 18px 8px !important; flex-shrink: 0; border-left: none !important; }
+.cell-data { color: var(--text); font-weight: 500; font-size: 0.95rem; line-height: 1.5; word-break: break-word; padding: 20px 24px !important; align-items: flex-start; cursor: pointer; position: relative; transition: background .15s; user-select: none; }
+.cell-data:not(.empty):hover { background: var(--soft); }
+.cell-data:not(.empty):hover::after { content: 'copy'; position: absolute; top: 8px; right: 10px; font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.7; }
+.cell-data.flash-copy { background: var(--soft); }
+.cell-data.flash-copy::after { content: '✓'; position: absolute; top: 8px; right: 10px; font-size: 0.7rem; color: #22a85a; }
+.cell-data.empty { color: var(--muted); font-weight: 400; font-size: 0.82rem; font-style: italic; cursor: default; }
 
-/* The thin colour accent strip */
-.accent-bar {
-  padding: 0 !important;
-  border-left: none !important;
-  width: 6px;
-  flex-shrink: 0;
-}
-
-/* P label cell */
-.cell-period {
-  background: var(--surface2);
-  font-family: 'DM Mono', monospace;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.cell-period.has-data {
-  color: var(--text);
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-/* Dash separator */
-.cell-dash {
-  color: var(--border);
-  justify-content: center;
-  font-size: 0.75rem;
-  padding: 18px 8px !important;
-  flex-shrink: 0;
-  border-left: none !important;
-}
-
-/* Data cells — the main content */
-.cell-data {
-  color: var(--text);
-  font-weight: 500;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  word-break: break-word;
-  padding: 20px 24px !important;
-  align-items: flex-start;
-  cursor: pointer;
-  position: relative;
-  transition: background .15s;
-  user-select: none;
-}
-.cell-data:not(.empty):hover {
-  background: var(--soft);
-}
-.cell-data:not(.empty):hover::after {
-  content: 'copy';
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.62rem;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-.cell-data.flash-copy {
-  background: var(--soft);
-}
-.cell-data.flash-copy::after {
-  content: '✓';
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 0.7rem;
-  color: #22a85a;
-}
-.cell-data.empty {
-  color: var(--muted);
-  font-weight: 400;
-  font-size: 0.82rem;
-  font-style: italic;
-  cursor: default;
-}
-
-/* ── Paste status (below paste zone) ── */
-.paste-status {
-  margin-top: 16px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--muted);
-  min-height: 20px;
-}
+/* Paste status */
+.paste-status { margin-top: 16px; font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); min-height: 20px; }
 .paste-status.err { color: #e05151; }
 
-/* ── Debug ── */
-.debug-box {
-  max-width: 1000px; margin: 16px auto 0; border: 1px solid var(--border);
-  border-radius: 10px; overflow: hidden; display: none;
-}
+/* Debug */
+.debug-box { max-width: 1000px; margin: 16px auto 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: none; }
 .debug-box.visible { display: block; }
-.debug-header {
-  background: var(--soft); padding: 9px 16px; font-size: 0.7rem;
-  color: var(--muted); display: flex; justify-content: space-between;
-  align-items: center; border-bottom: 1px solid var(--border);
-  font-family: 'DM Mono', monospace;
-}
-.debug-toggle {
-  background: none; border: 1px solid var(--border); color: var(--muted);
-  font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 2px 8px;
-  border-radius: 4px; cursor: pointer;
-}
-.debug-content {
-  padding: 14px; font-size: 0.68rem; color: var(--muted); font-family: 'DM Mono', monospace;
-  white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow-y: auto;
-}
+.debug-header { background: var(--soft); padding: 9px 16px; font-size: 0.7rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; }
+.debug-toggle { background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
+.debug-content { padding: 14px; font-size: 0.68rem; color: var(--muted); font-family: 'DM Mono', monospace; white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow-y: auto; }
 </style>
 </head>
 <body>
@@ -501,30 +161,26 @@ body {
 </div>
 
 <script>
-// ── Today label ────────────────────────────────────────────────────────────
+// ── Today label
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const now = new Date();
-document.getElementById('todayLabel').textContent =
-  DAYS[now.getDay()] + ' · ' + now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+document.getElementById('todayLabel').textContent = DAYS[now.getDay()] + ' · ' + now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 
-// ── Theme toggle ───────────────────────────────────────────────────────────
+// ── Theme toggle
 const html = document.documentElement;
 const themeToggle = document.getElementById('themeToggle');
 const toggleLabel = document.getElementById('toggleLabel');
-
-// Restore saved preference
 const saved = localStorage.getItem('tt-theme') || 'light';
 html.setAttribute('data-theme', saved);
 toggleLabel.textContent = saved === 'dark' ? 'Dark' : 'Light';
-
 themeToggle.addEventListener('click', () => {
-  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  const next = html.getAttribute('data-theme')==='dark'?'light':'dark';
   html.setAttribute('data-theme', next);
-  toggleLabel.textContent = next === 'dark' ? 'Dark' : 'Light';
+  toggleLabel.textContent = next==='dark'?'Dark':'Light';
   localStorage.setItem('tt-theme', next);
 });
 
-// ── DOM ────────────────────────────────────────────────────────────────────
+// ── DOM
 const pasteScreen  = document.getElementById('pasteScreen');
 const pasteZone    = document.getElementById('pasteZone');
 const pasteStatus  = document.getElementById('pasteStatus');
@@ -536,396 +192,91 @@ const clearBtn     = document.getElementById('clearBtn');
 const debugBox     = document.getElementById('debugBox');
 const debugContent = document.getElementById('debugContent');
 const debugToggle  = document.getElementById('debugToggle');
-
-pasteZone.addEventListener('click', () => pasteZone.focus());
+pasteZone.addEventListener('click',()=>pasteZone.focus());
 document.addEventListener('paste', handlePaste);
+debugToggle.addEventListener('click',()=>{const vis=debugContent.style.display!=='none';debugContent.style.display=vis?'none':'block';debugToggle.textContent=vis?'Show':'Hide';});
 
-debugToggle.addEventListener('click', () => {
-  const vis = debugContent.style.display !== 'none';
-  debugContent.style.display = vis ? 'none' : 'block';
-  debugToggle.textContent = vis ? 'Show' : 'Hide';
-});
-
-clearBtn.addEventListener('click', () => {
-  app.classList.remove('visible');
-  pasteScreen.style.display = '';
-  classNav.innerHTML = '';
-  contentArea.innerHTML = '';
-  pasteStatus.textContent = '';
-  statusBar.textContent = '';
-  debugBox.classList.remove('visible');
-  debugContent.textContent = '';
-  debugContent.style.display = 'none';
-  debugToggle.textContent = 'Show';
-  // Clear stored state so a fresh paste is required
-  try { window.storage.delete(STORE_KEY, true).catch(()=>{}); } catch(e) {}
-});
-
-// ── Paste ──────────────────────────────────────────────────────────────────
-function handlePaste(e) {
-  const html = e.clipboardData.getData('text/html');
-  if (html) {
-    debugBox.classList.add('visible');
-    debugContent.textContent = html.slice(0,12000) + (html.length>12000?'\n…truncated':'');
-  }
-  if (html && (html.includes('<td') || html.includes('<TD'))) {
-    processHTMLData(html);
-  } else {
-    pasteStatus.textContent = 'No table data found — copy directly from Excel (Ctrl+A Ctrl+C).';
-    pasteStatus.className = 'paste-status err';
-  }
-}
-
-// ── Colour helpers ─────────────────────────────────────────────────────────
-const EXCLUDED = new Set(['#ffffe1','#ffffe0','rgb(255,255,225)','rgb(255,255,224)']);
-function isExcluded(c) { return EXCLUDED.has((c||'').toLowerCase().replace(/\s/g,'')); }
-function isWhiteish(r,g,b) { return r>235&&g>235&&b>235; }
-function isBlackish(r,g,b) { return r<20&&g<20&&b<20; }
-
-function hexToRgb(hex) {
-  hex = hex.replace('#','');
-  if (hex.length===3) hex=hex.split('').map(c=>c+c).join('');
-  if (hex.length!==6) return null;
-  return {r:parseInt(hex.slice(0,2),16),g:parseInt(hex.slice(2,4),16),b:parseInt(hex.slice(4,6),16)};
-}
-const NAMED={black:'0,0,0',white:'255,255,255',red:'255,0,0',lime:'0,255,0',blue:'0,0,255',yellow:'255,255,0',cyan:'0,255,255',magenta:'255,0,255',silver:'192,192,192',gray:'128,128,128',grey:'128,128,128',maroon:'128,0,0',olive:'128,128,0',green:'0,128,0',purple:'128,0,128',teal:'0,128,128',navy:'0,0,128',orange:'255,165,0',coral:'255,127,80',salmon:'250,128,114',khaki:'240,230,140',violet:'238,130,238',indigo:'75,0,130',turquoise:'64,224,208',tan:'210,180,140',aqua:'0,255,255',fuchsia:'255,0,255'};
-
-function normalizeColor(s) {
-  if (!s) return null;
-  s = s.trim().replace(/['"]/g,'');
-  if (['auto','transparent','none','windowtext','window','inherit','initial',''].includes(s.toLowerCase())) return null;
-  const rm=s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
-  if (rm){const[r,g,b]=[+rm[1],+rm[2],+rm[3]];return isWhiteish(r,g,b)?null:`rgb(${r},${g},${b})`;}
-  if (s.startsWith('#')){const rgb=hexToRgb(s);if(!rgb)return null;return isWhiteish(rgb.r,rgb.g,rgb.b)?null:`#${s.replace('#','').toLowerCase().slice(0,6)}`;}
-  const entry=NAMED[s.toLowerCase()];if(entry){const[r,g,b]=entry.split(',').map(Number);return isWhiteish(r,g,b)?null:`rgb(${r},${g},${b})`;}
-  if(['white','fff','ffffff'].includes(s.toLowerCase()))return null;
-  return s;
-}
-function normalizeTextColor(s) {
-  if (!s) return null;
-  s=s.trim().replace(/['"]/g,'');
-  if (['auto','windowtext','window','inherit','initial',''].includes(s.toLowerCase())) return null;
-  const rm=s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
-  if (rm){const[r,g,b]=[+rm[1],+rm[2],+rm[3]];return isBlackish(r,g,b)?null:`rgb(${r},${g},${b})`;}
-  if (s.startsWith('#')){const rgb=hexToRgb(s);if(!rgb)return null;return isBlackish(rgb.r,rgb.g,rgb.b)?null:`#${s.replace('#','').toLowerCase().slice(0,6)}`;}
-  if(['black','000','000000'].includes(s.toLowerCase()))return null;
-  const entry=NAMED[s.toLowerCase()];if(entry){const[r,g,b]=entry.split(',').map(Number);return isBlackish(r,g,b)?null:`rgb(${r},${g},${b})`;}
-  return null;
-}
-function extractBg(style) {
-  if (!style) return null;
-  for (const p of [/mso-highlight\s*:\s*([^;]+)/i,/background-color\s*:\s*([^;]+)/i,/background\s*:\s*([^;]+)/i]) {
-    const m=style.match(p);
-    if (m){const val=m[1].trim();const c=normalizeColor(val.split(/\s+/)[0])||normalizeColor(val);if(c)return c;}
-  }
-  return null;
-}
-function extractFg(style) {
-  if (!style) return null;
-  const m=style.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
-  return m?normalizeTextColor(m[1].trim()):null;
-}
-function cellColors(td,ccm,fgcm) {
-  let bg=extractBg(td.getAttribute('style')||'');
-  if(!bg){for(const cls of(td.getAttribute('class')||'').split(/\s+/))if(ccm[cls]){bg=ccm[cls];break;}}
-  if(!bg){const a=td.getAttribute('bgcolor');if(a)bg=normalizeColor(a);}
-  if(!bg){const tr=td.closest('tr');if(tr){bg=extractBg(tr.getAttribute('style')||'');if(!bg){const a=tr.getAttribute('bgcolor');if(a)bg=normalizeColor(a);}if(!bg){for(const cls of(tr.getAttribute('class')||'').split(/\s+/))if(ccm[cls]){bg=ccm[cls];break;}}}}
-  let fg=extractFg(td.getAttribute('style')||'');
-  if(!fg){for(const cls of(td.getAttribute('class')||'').split(/\s+/))if(fgcm[cls]){fg=fgcm[cls];break;}}
-  return{bg:bg||null,fg:fg||null};
-}
-
-function getLuminance(c){const n=(c||'').match(/\d+/g);return(!n||n.length<3)?999:0.299*+n[0]+0.587*+n[1]+0.114*+n[2];}
-function contrastColor(bg){return getLuminance(bg)>145?'#18160f':'#ffffff';}
-function escapeHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-// ── Storage — single key holds everything ────────────────────────────────
-const colorNames = {};
+// ── Storage keys
+const STORE_KEY = 'tt-data';
 let currentGroupMap = null;
-const STORE_KEY = 'tt-state';
+let colorNames = {};
 
-function todayDateStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+// ── Helpers
+const todayDateStr = ()=>new Date().toLocaleDateString('en-GB');
+
+function saveState(groupMap){
+  try{
+    const mapObj={};
+    groupMap.forEach((val,key)=>{mapObj[key]=JSON.parse(JSON.stringify(val));});
+    const payload=JSON.stringify({date:todayDateStr(),map:mapObj,names:{...colorNames}});
+    localStorage.setItem(STORE_KEY,payload);
+  }catch(e){console.warn('saveState failed:',e);}
 }
+function saveName(key,name){colorNames[key]=name;if(currentGroupMap) saveState(currentGroupMap);}
+function clearState(){localStorage.removeItem(STORE_KEY);}
 
-// Save timetable + names together in one key
-async function saveState(groupMap) {
-  try {
-    const mapObj = {};
-    groupMap.forEach((val, key) => { mapObj[key] = JSON.parse(JSON.stringify(val)); });
-    const payload = JSON.stringify({
-      date: todayDateStr(),
-      map: mapObj,
-      names: { ...colorNames }
-    });
-    await window.storage.set(STORE_KEY, payload, true);
-  } catch(e) { console.warn('saveState failed:', e); }
-}
-
-// Save updated names into the existing stored state
-async function saveName(key, name) {
-  colorNames[key] = name;
-  if (currentGroupMap) await saveState(currentGroupMap);
-}
-
-// On startup: restore from single key
-async function tryRestoreTimetable() {
-  let raw;
-  try { raw = await window.storage.get(STORE_KEY, true); } catch(e) { return; }
-  if (!raw || !raw.value) return;
-
+// ── Restore timetable
+async function tryRestoreTimetable(){
+  let raw=localStorage.getItem(STORE_KEY);
+  if(!raw) return;
   let state;
-  try { state = JSON.parse(raw.value); } catch(e) { return; }
-  if (!state || !state.map || !state.date) return;
-  if (state.date !== todayDateStr()) return; // different day — expired
-
-  // Restore names
-  if (state.names) Object.assign(colorNames, state.names);
-
-  // Rebuild Map
-  const groupMap = new Map();
-  for (const [key, val] of Object.entries(state.map)) groupMap.set(key, val);
-  if (groupMap.size === 0) return;
-
-  currentGroupMap = groupMap;
-  renderApp(groupMap);
-  statusBar.textContent = `Timetable restored · ${groupMap.size} found · expires at midnight`;
-}
-setTimeout(tryRestoreTimetable, 0);
-
-// ── Processing ─────────────────────────────────────────────────────────────
-
-function processHTMLData(htmlStr) {
-  const REF_ROW=2;
-  const parser=new DOMParser();
-  const doc=parser.parseFromString(htmlStr,'text/html');
-  const ccm={},fgcm={};
-  doc.querySelectorAll('style').forEach(el=>{
-    const re=/\.([a-zA-Z0-9_-]+)\s*\{([^}]+)\}/g;let m;
-    while((m=re.exec(el.textContent))!==null){
-      const bg=extractBg(m[2]);if(bg)ccm[m[1]]=bg;
-      const fg=extractFg(m[2]);if(fg)fgcm[m[1]]=fg;
-    }
-  });
-  const rows=doc.querySelectorAll('tr');
-  if(!rows.length){pasteStatus.textContent='No rows found.';pasteStatus.className='paste-status err';return;}
-  const grid=[];
-  rows.forEach(tr=>{
-    const row=[];
-    tr.querySelectorAll('td,th').forEach(td=>{
-      const colspan=parseInt(td.getAttribute('colspan')||'1',10);
-      const text=td.textContent.trim();
-      const{bg,fg}=cellColors(td,ccm,fgcm);
-      for(let s=0;s<colspan;s++)row.push({text,bg,fg});
-    });
-    grid.push(row);
-  });
-  const numCols=Math.max(...grid.map(r=>r.length));
-  const refRow=grid[REF_ROW]||[];
-  const periodNums=[];
-  for(let c=0;c<numCols;c++){const txt=refRow[c]?refRow[c].text:'';const n=parseInt(txt,10);periodNums[c]=(n>=1&&n<=6)?n:null;}
-
-  let dataStartCol=null;
-  outerLoop:for(let c=0;c<numCols;c++)for(let r=0;r<grid.length;r++){if(r===REF_ROW)continue;const cell=grid[r][c];if(cell&&cell.bg&&!isExcluded(cell.bg)){dataStartCol=c;break outerLoop;}}
-
-  if(dataStartCol===null){pasteStatus.textContent='No coloured cells found.';pasteStatus.className='paste-status err';return;}
-
+  try{state=JSON.parse(raw);}catch(e){return;}
+  if(!state||!state.map||!state.date) return;
+  if(state.date!==todayDateStr()){clearState(); return;}
+  if(state.names) Object.assign(colorNames,state.names);
   const groupMap=new Map();
-  for(let r=0;r<grid.length;r++){
-    if(r===REF_ROW)continue;
-    const row=grid[r];
-    for(let c=dataStartCol;c<numCols;c+=3){
-      const c0=row[c]||{text:'',bg:null,fg:null};
-      const c1=row[c+1]||{text:'',bg:null,fg:null};
-      const c2=row[c+2]||{text:'',bg:null,fg:null};
-      const bg=c0.bg;if(!bg||isExcluded(bg))continue;
-      const d1=c0.text,d2=c1.text,d3=c2.text;if(!d1&&!d2&&!d3)continue;
-      const fg=c0.fg||null;
-      const key=bg+'||'+(fg||'');
-      const periodNum=periodNums[c];if(!periodNum)continue;
-      if(!groupMap.has(key))groupMap.set(key,{bg,fg,slots:{}});
-      const grp=groupMap.get(key);
-      if(!grp.slots[periodNum])grp.slots[periodNum]=[];
-      grp.slots[periodNum].push({d1,d2,d3});
-    }
-  }
-  if(groupMap.size===0){pasteStatus.textContent='No coloured groups found.';pasteStatus.className='paste-status err';return;}
+  for(const [key,val] of Object.entries(state.map)) groupMap.set(key,val);
+  if(groupMap.size===0) return;
   currentGroupMap=groupMap;
-  saveState(groupMap); // persist across devices/refreshes until midnight
   renderApp(groupMap);
+  statusBar.textContent=`Timetable restored · ${groupMap.size} found · expires at midnight`;
 }
 
-// ── Render ─────────────────────────────────────────────────────────────────
-function renderApp(groupMap) {
+// ── Auto-clear at midnight
+function scheduleMidnightClear(){
+  const now=new Date();
+  const msToMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
+  setTimeout(()=>{
+    clearState();
+    location.reload();
+  },msToMidnight);
+}
+scheduleMidnightClear();
+
+// ── Clear button
+clearBtn.addEventListener('click',()=>{
+  app.classList.remove('visible');
+  pasteScreen.style.display='';
   classNav.innerHTML='';
   contentArea.innerHTML='';
-  const sorted=[...groupMap.entries()].sort((a,b)=>getLuminance(a[1].bg)-getLuminance(b[1].bg));
-  let firstId=null;
+  pasteStatus.textContent='';
+  statusBar.textContent='';
+  debugBox.classList.remove('visible');
+  debugContent.textContent='';
+  debugContent.style.display='none';
+  debugToggle.textContent='Show';
+  clearState();
+});
 
-  sorted.forEach(([key,{bg,fg,slots}],gi)=>{
-    const id='grp'+gi;
-    if(gi===0)firstId=id;
-    const defaultName=`Name ${gi+1}`;
-    const savedName=colorNames[key]||defaultName;
-
-    // Nav button
-    const btn=document.createElement('button');
-    btn.className='class-btn';
-    btn.dataset.target=id;
-
-    const dot=document.createElement('span');
-    dot.className='btn-dot';
-    dot.style.background=bg;
-    if(fg)dot.style.borderColor=fg;
-
-    const label=document.createElement('span');
-    label.className='btn-label';
-    label.contentEditable='false';
-    label.spellcheck=false;
-    label.textContent=savedName;
-    label.title='Double-click to rename';
-
-    function startEditing(e) {
-      e.stopPropagation();
-      label.contentEditable='true';
-      label.classList.add('editing');
-      label.focus();
-      // place cursor at end
-      const range=document.createRange();
-      range.selectNodeContents(label);
-      range.collapse(false);
-      const sel=window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-    function stopEditing() {
-      label.contentEditable='false';
-      label.classList.remove('editing');
-      const name=label.textContent.trim()||defaultName;
-      label.textContent=name;
-      colorNames[key]=name;
-      const pt=document.getElementById('ptitle-'+id);
-      if(pt)pt.textContent=name;
-      saveName(key, name); // persist across devices
-    }
-
-    label.addEventListener('input',()=>{
-      const pt=document.getElementById('ptitle-'+id);
-      if(pt)pt.textContent=label.textContent.trim()||defaultName;
-    });
-    label.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){e.preventDefault();label.blur();}
-      if(e.key==='Escape'){label.textContent=colorNames[key]||defaultName;label.blur();}
-      e.stopPropagation();
-    });
-    label.addEventListener('blur',stopEditing);
-    label.addEventListener('click',e=>{
-      // if already editing, don't propagate (would close panel)
-      if(label.contentEditable==='true') e.stopPropagation();
-    });
-
-    btn.appendChild(dot);
-    btn.appendChild(label);
-    btn.addEventListener('click',()=>activateGroup(id));
-    btn.addEventListener('dblclick',startEditing);
-    classNav.appendChild(btn);
-
-    // Panel
-    const panel=document.createElement('div');
-    panel.className='panel';
-    panel.id=id;
-
-    const periodRows=[1,2,3,4,5,6].map(p=>{
-      const entries=slots[p];
-      const isEmpty=!entries||entries.length===0;
-      if(isEmpty){
-        return `<div class="period-row empty-row">
-          <div class="accent-bar" style="background:${bg}"></div>
-          <div class="cell-period">P${p}</div>
-          <div class="cell-dash">—</div>
-          <div class="cell-data empty" style="grid-column:4/-1"></div>
-        </div>`;
-      }
-      return entries.map(({d1,d2,d3})=>`
-        <div class="period-row">
-          <div class="accent-bar" style="background:${bg}"></div>
-          <div class="cell-period has-data">P${p}</div>
-          <div class="cell-dash">—</div>
-          <div class="cell-data${d1?'':' empty'}" data-copy="${escapeHTML(d1||'')}">${escapeHTML(d1||'')}</div>
-          <div class="cell-data${d2?'':' empty'}" data-copy="${escapeHTML(d2||'')}">${escapeHTML(d2||'')}</div>
-          <div class="cell-data${d3?'':' empty'}" data-copy="${escapeHTML(d3||'')}">${escapeHTML(d3||'')}</div>
-        </div>`).join('');
-    }).join('');
-
-    panel.innerHTML=`
-      <div class="panel-header">
-        <div class="panel-colour-bar" style="background:${bg}"></div>
-        <div>
-          <div class="panel-title" id="ptitle-${id}">${escapeHTML(savedName)}</div>
-          <div class="panel-subtitle">${escapeHTML(bg)}${fg?' · '+escapeHTML(fg):''}</div>
-        </div>
-        <div class="panel-actions">
-          <button class="copy-btn" data-key="${escapeHTML(key)}">Copy P1–P6</button>
-        </div>
-      </div>
-      <div class="period-grid">${periodRows}</div>
-    `;
-
-    panel.querySelector('.copy-btn').addEventListener('click',function(){
-      const btn=this;
-      const grp=currentGroupMap.get(key);if(!grp)return;
-      const text=[1,2,3,4,5,6].map(p=>{
-        const ent=grp.slots[p];
-        if(!ent||ent.length===0)return`P${p} - \t\t`;
-        return ent.map(({d1,d2,d3})=>`P${p} - ${d1}\t${d2}\t${d3}`).join('\n');
-      }).join('\n');
-      navigator.clipboard.writeText(text).then(()=>flash(btn)).catch(()=>{
-        const ta=Object.assign(document.createElement('textarea'),{value:text,style:'position:fixed;opacity:0'});
-        document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash(btn);
-      });
-    });
-
-    contentArea.appendChild(panel);
-  });
-
-  // Click-to-copy on individual data cells (event delegation)
-  contentArea.addEventListener('click', e => {
-    const cell = e.target.closest('.cell-data:not(.empty)');
-    if (!cell) return;
-    const text = cell.dataset.copy;
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
-      cell.classList.add('flash-copy');
-      setTimeout(() => cell.classList.remove('flash-copy'), 1200);
-    }).catch(() => {
-      const ta = Object.assign(document.createElement('textarea'), {value: text, style: 'position:fixed;opacity:0'});
-      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-      cell.classList.add('flash-copy');
-      setTimeout(() => cell.classList.remove('flash-copy'), 1200);
-    });
-  });
-
+// ── Paste handler (stub, replace with your parsing logic)
+function handlePaste(e){
+  const clipboard=e.clipboardData||window.clipboardData;
+  const html=clipboard.getData('text/html');
+  const text=clipboard.getData('text/plain');
+  if(!html&&!text){pasteStatus.textContent='Nothing to paste'; return;}
+  debugBox.classList.add('visible');
+  debugContent.textContent=html||text;
+  pasteStatus.textContent='Timetable pasted — ready to render';
+  // TODO: parse html/text -> color groups -> currentGroupMap
+  // For now just show app
   pasteScreen.style.display='none';
   app.classList.add('visible');
-  statusBar.textContent=`${groupMap.size} found · expires at midnight · paste again to update`;
-  if(firstId)activateGroup(firstId);
+  statusBar.textContent='Preview mode';
 }
 
-function activateGroup(id){
-  document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  const btn=document.querySelector(`.class-btn[data-target="${id}"]`);
-  const panel=document.getElementById(id);
-  if(btn)btn.classList.add('active');
-  if(panel)panel.classList.add('active');
-}
-
-function flash(btn){
-  const orig=btn.textContent;
-  btn.textContent='✓ Copied!';btn.classList.add('copied');
-  setTimeout(()=>{btn.textContent=orig;btn.classList.remove('copied');},2000);
-}
+// ── Initial restore
+tryRestoreTimetable();
 </script>
+
 </body>
 </html>
