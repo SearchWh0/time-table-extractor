@@ -700,7 +700,7 @@ function renderApp(groupMap) {
   sorted.forEach(([key,{bg,fg,slots}],gi)=>{
     const id='grp'+gi;
     if(gi===0)firstId=id;
-    const defaultName=`Class ${gi+1}`;
+    const defaultName=`Name ${gi+1}`;
     const savedName=colorNames[key]||defaultName;
 
     // Nav button
@@ -828,7 +828,7 @@ function renderApp(groupMap) {
 
   pasteScreen.style.display='none';
   app.classList.add('visible');
-  statusBar.textContent=`${groupMap.size} class${groupMap.size!==1?'es':''} found · click a tab to view`;
+  statusBar.textContent=`${groupMap.size} found · click a tab to view`;
   if(firstId)activateGroup(firstId);
 }
 
