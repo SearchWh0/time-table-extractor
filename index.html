@@ -7,211 +7,117 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --border: #2e2e2e;
-    --text: #e8e4dc;
-    --muted: #555;
-    --accent: #c8f542;
+    --bg: #0f0f0f; --surface: #1a1a1a; --border: #2e2e2e;
+    --text: #e8e4dc; --muted: #555; --accent: #c8f542;
   }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    padding: 40px 24px;
-  }
-
-  header { max-width: 960px; margin: 0 auto 48px; }
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    margin-bottom: 10px;
-  }
-  h1 span { color: var(--accent); }
-  .subtitle { color: var(--muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Mono',monospace; min-height:100vh; padding:40px 24px; }
+  header { max-width:960px; margin:0 auto 48px; }
+  h1 { font-family:'Syne',sans-serif; font-size:clamp(2rem,5vw,3.5rem); font-weight:800; line-height:1; letter-spacing:-0.03em; margin-bottom:10px; }
+  h1 span { color:var(--accent); }
+  .subtitle { color:var(--muted); font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase; }
 
   .paste-zone {
-    max-width: 960px;
-    margin: 0 auto 32px;
-    border: 1.5px dashed var(--border);
-    border-radius: 4px;
-    padding: 28px 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    max-width:960px; margin:0 auto 32px;
+    border:1.5px dashed var(--border); border-radius:4px; padding:28px 32px;
+    text-align:center; cursor:pointer; transition:border-color .2s,background .2s;
   }
-  .paste-zone:hover { border-color: var(--accent); background: rgba(200,245,66,0.03); }
-  .paste-zone p { color: var(--muted); font-size: 0.85rem; }
-  .key {
-    display: inline-block;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 2px 8px;
-    font-size: 0.8rem;
-    color: var(--accent);
-    margin: 0 2px;
-  }
+  .paste-zone:hover { border-color:var(--accent); background:rgba(200,245,66,.03); }
+  .paste-zone p { color:var(--muted); font-size:0.85rem; }
+  .key { display:inline-block; background:var(--surface); border:1px solid var(--border); border-radius:3px; padding:2px 8px; font-size:0.8rem; color:var(--accent); margin:0 2px; }
 
-  .controls {
-    max-width: 960px;
-    margin: 0 auto 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-
-  .status { flex: 1; font-size: 0.75rem; color: var(--muted); min-height: 20px; }
-  .status.ok  { color: var(--accent); }
-  .status.err { color: #ff6b6b; }
+  .controls { max-width:960px; margin:0 auto 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .status { flex:1; font-size:0.75rem; color:var(--muted); min-height:20px; }
+  .status.ok  { color:var(--accent); }
+  .status.err { color:#ff6b6b; }
 
   .clear-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    padding: 6px 16px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-    display: none;
+    background:none; border:1px solid var(--border); color:var(--muted);
+    font-family:'DM Mono',monospace; font-size:0.75rem; padding:6px 16px;
+    border-radius:3px; cursor:pointer; transition:border-color .2s,color .2s; display:none;
   }
-  .clear-btn:hover { border-color: #ff6b6b; color: #ff6b6b; }
+  .clear-btn:hover { border-color:#ff6b6b; color:#ff6b6b; }
 
-  .results { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+  .results { max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
 
-  .color-group {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    animation: fadeUp 0.3s ease both;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  .color-group { border:1px solid var(--border); border-radius:4px; overflow:hidden; animation:fadeUp .3s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
   .color-group-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    display:flex; align-items:center; gap:12px; padding:12px 16px;
+    background:var(--surface); border-bottom:1px solid var(--border);
   }
+  /* Two swatches: bg + text colour indicator */
+  .swatch-wrap { display:flex; gap:4px; flex-shrink:0; }
   .color-swatch {
-    width: 22px; height: 22px;
-    border-radius: 3px;
-    border: 1px solid rgba(255,255,255,0.12);
-    flex-shrink: 0;
+    width:22px; height:22px; border-radius:3px; border:1px solid rgba(255,255,255,.12); flex-shrink:0;
   }
-  .color-name-wrap { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  .text-swatch {
+    width:22px; height:22px; border-radius:3px; border:1px solid rgba(255,255,255,.12);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0;
+  }
+  .color-name-wrap { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
   .color-name-input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px dashed var(--border);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    padding: 2px 4px;
-    outline: none;
-    width: 180px;
-    transition: border-color 0.2s;
+    background:transparent; border:none; border-bottom:1px dashed var(--border);
+    color:var(--text); font-family:'DM Mono',monospace; font-size:0.8rem;
+    padding:2px 4px; outline:none; width:180px; transition:border-color .2s;
   }
-  .color-name-input:focus { border-bottom-color: var(--accent); }
-  .color-name-input::placeholder { color: #444; font-size: 0.75rem; }
-  .color-label { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.03em; }
+  .color-name-input:focus { border-bottom-color:var(--accent); }
+  .color-name-input::placeholder { color:#444; font-size:0.75rem; }
+  .color-label { font-size:0.68rem; color:var(--muted); letter-spacing:0.03em; }
 
-  .row-count {
-    background: var(--border);
-    border-radius: 20px;
-    padding: 2px 10px;
-    font-size: 0.7rem;
-    color: var(--muted);
-    white-space: nowrap;
-  }
+  .row-count { background:var(--border); border-radius:20px; padding:2px 10px; font-size:0.7rem; color:var(--muted); white-space:nowrap; }
 
   .copy-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    padding: 4px 12px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s, background 0.2s;
-    white-space: nowrap;
-    flex-shrink: 0;
+    background:none; border:1px solid var(--border); color:var(--muted);
+    font-family:'DM Mono',monospace; font-size:0.7rem; padding:4px 12px;
+    border-radius:3px; cursor:pointer; transition:border-color .2s,color .2s,background .2s;
+    white-space:nowrap; flex-shrink:0;
   }
-  .copy-btn:hover  { border-color: var(--accent); color: var(--accent); }
-  .copy-btn.copied { border-color: var(--accent); color: var(--bg); background: var(--accent); }
+  .copy-btn:hover  { border-color:var(--accent); color:var(--accent); }
+  .copy-btn.copied { border-color:var(--accent); color:var(--bg); background:var(--accent); }
 
-  /* Data table */
-  .entry-table { width: 100%; border-collapse: collapse; }
-  .entry-table tr { border-bottom: 1px solid var(--border); }
-  .entry-table tr:last-child { border-bottom: none; }
-  .entry-table td {
-    padding: 9px 14px;
-    font-size: 0.8rem;
-    vertical-align: middle;
-  }
-  .col-p    { color: var(--accent); font-weight: 500; white-space: nowrap; width: 1%; padding-right: 6px; }
-  .col-dash { color: var(--muted); width: 1%; padding: 9px 4px; }
-  .col-data { color: var(--text); word-break: break-word; }
-  .col-data.empty { color: #333; font-style: italic; }
+  .entry-table { width:100%; border-collapse:collapse; }
+  .entry-table tr { border-bottom:1px solid var(--border); }
+  .entry-table tr:last-child { border-bottom:none; }
+  .entry-table tr.empty-row td { opacity:0.28; }
+  .entry-table td { padding:9px 14px; font-size:0.8rem; vertical-align:middle; }
+  .col-p    { color:var(--accent); font-weight:500; white-space:nowrap; width:1%; padding-right:6px; }
+  .col-dash { color:var(--muted); width:1%; padding:9px 4px; }
+  .col-data { color:var(--text); word-break:break-word; }
+  .col-data.empty { color:#333; font-style:italic; }
 
-  .empty-state { max-width: 960px; margin: 60px auto; text-align: center; color: var(--muted); font-size: 0.8rem; }
+  .empty-state { max-width:960px; margin:60px auto; text-align:center; color:var(--muted); font-size:0.8rem; }
 
-  .debug-box { max-width: 960px; margin: 24px auto 0; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; display: none; }
-  .debug-box.visible { display: block; }
+  .debug-box { max-width:960px; margin:24px auto 0; border:1px solid var(--border); border-radius:4px; overflow:hidden; display:none; }
+  .debug-box.visible { display:block; }
   .debug-header {
-    background: var(--surface); padding: 10px 16px; font-size: 0.7rem;
-    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid var(--border);
+    background:var(--surface); padding:10px 16px; font-size:0.7rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--muted); display:flex; justify-content:space-between;
+    align-items:center; border-bottom:1px solid var(--border);
   }
-  .debug-toggle {
-    background: none; border: 1px solid var(--border); color: var(--muted);
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 3px 10px;
-    border-radius: 3px; cursor: pointer;
-  }
-  .debug-content {
-    padding: 16px; font-size: 0.7rem; color: #aaa;
-    white-space: pre-wrap; word-break: break-all;
-    max-height: 300px; overflow-y: auto; line-height: 1.6;
-  }
+  .debug-toggle { background:none; border:1px solid var(--border); color:var(--muted); font-family:'DM Mono',monospace; font-size:0.7rem; padding:3px 10px; border-radius:3px; cursor:pointer; }
+  .debug-content { padding:16px; font-size:0.7rem; color:#aaa; white-space:pre-wrap; word-break:break-all; max-height:300px; overflow-y:auto; line-height:1.6; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Excel <span>Color</span> Sorter</h1>
-  <p class="subtitle">P1–P6 per colour · period number from row 3 · left-to-right order</p>
+  <p class="subtitle">P1–P6 · period from row 3 · grouped by background + text colour</p>
 </header>
 
 <div class="paste-zone" id="pasteZone" tabindex="0">
   <p>Click here · <span class="key">Ctrl+A</span> <span class="key">Ctrl+C</span> in Excel · then <span class="key">Ctrl+V</span> here</p>
-  <p style="margin-top:8px;font-size:0.73rem;color:#444;">Colours sorted by group · period number read from row 3 above each triplet</p>
+  <p style="margin-top:8px;font-size:0.73rem;color:#444;">Groups by background colour + text colour · P slot set by the number in row 3</p>
 </div>
 
 <div class="controls">
-
   <div class="status" id="status"></div>
   <button class="clear-btn" id="clearBtn">✕ Clear</button>
 </div>
 
-<div class="results"  id="results"></div>
+<div class="results" id="results"></div>
 <div class="empty-state" id="emptyState" style="display:none">No coloured cells found.</div>
 
 <div class="debug-box" id="debugBox">
@@ -269,9 +175,9 @@ function handlePaste(e) {
 
 // ── Colour helpers ─────────────────────────────────────────────────────────
 const EXCLUDED = new Set(['#ffffe1','#ffffe0','rgb(255,255,225)','rgb(255,255,224)']);
-
 function isExcluded(c) { return EXCLUDED.has((c||'').toLowerCase().replace(/\s/g,'')); }
 function isWhiteish(r,g,b) { return r > 235 && g > 235 && b > 235; }
+function isBlackish(r,g,b) { return r < 20 && g < 20 && b < 20; }  // default black text — treat as "no text colour"
 
 function hexToRgb(hex) {
   hex = hex.replace('#','');
@@ -314,6 +220,34 @@ function normalizeColor(s) {
   return s;
 }
 
+// Normalise a text/foreground colour — returns null if it's default black
+function normalizeTextColor(s) {
+  if (!s) return null;
+  s = s.trim().replace(/['"]/g,'');
+  const skip = ['auto','windowtext','window','inherit','initial',''];
+  if (skip.includes(s.toLowerCase())) return null;
+  const rm = s.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rm) {
+    const [r,g,b] = [+rm[1],+rm[2],+rm[3]];
+    if (isBlackish(r,g,b)) return null;  // default, treat as no colour
+    return `rgb(${r},${g},${b})`;
+  }
+  if (s.startsWith('#')) {
+    const rgb = hexToRgb(s);
+    if (!rgb) return null;
+    if (isBlackish(rgb.r,rgb.g,rgb.b)) return null;
+    return `#${s.replace('#','').toLowerCase().slice(0,6)}`;
+  }
+  if (s.toLowerCase() === 'black' || s === '000' || s === '000000') return null;
+  const entry = NAMED[s.toLowerCase()];
+  if (entry) {
+    const [r,g,b] = entry.split(',').map(Number);
+    if (isBlackish(r,g,b)) return null;
+    return `rgb(${r},${g},${b})`;
+  }
+  return null;
+}
+
 function extractBg(style) {
   if (!style) return null;
   for (const p of [
@@ -331,42 +265,68 @@ function extractBg(style) {
   return null;
 }
 
-function cellColor(td, ccm) {
-  let c = extractBg(td.getAttribute('style') || '');
-  if (c) return c;
-  for (const cls of (td.getAttribute('class')||'').split(/\s+/)) if (ccm[cls]) return ccm[cls];
-  const bg = td.getAttribute('bgcolor');
-  if (bg) { c = normalizeColor(bg); if (c) return c; }
-  const tr = td.closest('tr');
-  if (tr) {
-    c = extractBg(tr.getAttribute('style')||'');
-    if (c) return c;
-    const trBg = tr.getAttribute('bgcolor');
-    if (trBg) { c = normalizeColor(trBg); if (c) return c; }
-    for (const cls of (tr.getAttribute('class')||'').split(/\s+/)) if (ccm[cls]) return ccm[cls];
-  }
+function extractFg(style) {
+  if (!style) return null;
+  const m = style.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
+  if (m) return normalizeTextColor(m[1].trim());
   return null;
+}
+
+// Returns { bg, fg } for a cell — fg is null if default/black
+function cellColors(td, ccm, fgcm) {
+  // ── Background ──
+  let bg = extractBg(td.getAttribute('style') || '');
+  if (!bg) {
+    for (const cls of (td.getAttribute('class')||'').split(/\s+/)) if (ccm[cls]) { bg = ccm[cls]; break; }
+  }
+  if (!bg) {
+    const bga = td.getAttribute('bgcolor');
+    if (bga) bg = normalizeColor(bga);
+  }
+  if (!bg) {
+    const tr = td.closest('tr');
+    if (tr) {
+      bg = extractBg(tr.getAttribute('style')||'');
+      if (!bg) {
+        const trBg = tr.getAttribute('bgcolor');
+        if (trBg) bg = normalizeColor(trBg);
+      }
+      if (!bg) {
+        for (const cls of (tr.getAttribute('class')||'').split(/\s+/)) if (ccm[cls]) { bg = ccm[cls]; break; }
+      }
+    }
+  }
+
+  // ── Foreground / text colour ──
+  let fg = extractFg(td.getAttribute('style') || '');
+  if (!fg) {
+    for (const cls of (td.getAttribute('class')||'').split(/\s+/)) if (fgcm[cls]) { fg = fgcm[cls]; break; }
+  }
+
+  return { bg: bg || null, fg: fg || null };
 }
 
 // ── Main processing ────────────────────────────────────────────────────────
 function processHTMLData(html) {
-  const refRowIndex = 2; // row 3, 0-based
+  const REF_ROW = 2; // row 3, 0-based
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  // Class → bg map
-  const ccm = {};
+  // Build class → bg colour map AND class → fg colour map from <style> blocks
+  const ccm = {}, fgcm = {};
   doc.querySelectorAll('style').forEach(el => {
     const re = /\.([a-zA-Z0-9_-]+)\s*\{([^}]+)\}/g;
     let m;
     while ((m = re.exec(el.textContent)) !== null) {
       const bg = extractBg(m[2]);
       if (bg) ccm[m[1]] = bg;
+      const fg = extractFg(m[2]);
+      if (fg) fgcm[m[1]] = fg;
     }
   });
 
-  // Build grid[row][col] = { text, color }
+  // Build grid[row][col] = { text, bg, fg }
   const rows = doc.querySelectorAll('tr');
   if (!rows.length) { setStatus('No rows found.', 'err'); return; }
 
@@ -375,34 +335,32 @@ function processHTMLData(html) {
     const row = [];
     tr.querySelectorAll('td, th').forEach(td => {
       const colspan = parseInt(td.getAttribute('colspan')||'1', 10);
-      const text  = td.textContent.trim();
-      const color = cellColor(td, ccm);
-      for (let s = 0; s < colspan; s++) row.push({ text, color });
+      const text = td.textContent.trim();
+      const { bg, fg } = cellColors(td, ccm, fgcm);
+      for (let s = 0; s < colspan; s++) row.push({ text, bg, fg });
     });
     grid.push(row);
   });
 
   const numCols = Math.max(...grid.map(r => r.length));
 
-  // Row 3 → period reference numbers per column
-  const refRow = grid[refRowIndex] || [];
-  const periodRefs = [];
+  // Row 3 → period number per column (we extract the integer 1-6)
+  const refRow = grid[REF_ROW] || [];
+  const periodNums = []; // periodNums[colIdx] = 1..6 or null
   for (let c = 0; c < numCols; c++) {
-    periodRefs[c] = refRow[c] ? refRow[c].text : '';
+    const txt = refRow[c] ? refRow[c].text : '';
+    const n = parseInt(txt, 10);
+    periodNums[c] = (n >= 1 && n <= 6) ? n : null;
   }
 
-  // Find first coloured column — everything before it is leading label columns.
-  // Then step in threes from that offset so triplets stay aligned.
+  // Find first coloured column to determine triplet alignment
   let dataStartCol = null;
   outerLoop:
   for (let c = 0; c < numCols; c++) {
     for (let r = 0; r < grid.length; r++) {
-      if (r === refRowIndex) continue;
-      const col = grid[r][c];
-      if (col && col.color && !isExcluded(col.color)) {
-        dataStartCol = c;
-        break outerLoop;
-      }
+      if (r === REF_ROW) continue;
+      const cell = grid[r][c];
+      if (cell && cell.bg && !isExcluded(cell.bg)) { dataStartCol = c; break outerLoop; }
     }
   }
 
@@ -413,107 +371,130 @@ function processHTMLData(html) {
     return;
   }
 
-  // Scan every non-ref row, left-to-right in steps of 3 from dataStartCol
-  // colorMap[color] = array of { colStart, periodRef, d1, d2, d3 }
-  const colorMap = new Map();
+  // Group key = "bgColour||fgColour" so same-bg but different text = different group
+  // colorMap[groupKey] = { bg, fg, slots: { 1:entry, 2:entry, ... 6:entry } }
+  const groupMap = new Map();
 
   for (let r = 0; r < grid.length; r++) {
-    if (r === refRowIndex) continue;
+    if (r === REF_ROW) continue;
     const row = grid[r];
 
     for (let c = dataStartCol; c < numCols; c += 3) {
-      const c0 = row[c]   || { text:'', color:null };
-      const c1 = row[c+1] || { text:'', color:null };
-      const c2 = row[c+2] || { text:'', color:null };
+      const c0 = row[c]   || { text:'', bg:null, fg:null };
+      const c1 = row[c+1] || { text:'', bg:null, fg:null };
+      const c2 = row[c+2] || { text:'', bg:null, fg:null };
 
-      const color = c0.color;
-      if (!color || isExcluded(color)) continue;
+      const bg = c0.bg;
+      if (!bg || isExcluded(bg)) continue;
 
       const d1 = c0.text, d2 = c1.text, d3 = c2.text;
       if (!d1 && !d2 && !d3) continue;
 
-      // Period ref from row 3 at the start column of this triplet
-      const periodRef = periodRefs[c] || '';
+      // Text colour from first cell of triplet
+      const fg = c0.fg || null;
+      const groupKey = bg + '||' + (fg || '');
 
-      if (!colorMap.has(color)) colorMap.set(color, []);
-      colorMap.get(color).push({ colStart: c, periodRef, d1, d2, d3 });
+      // Period slot: read from row 3 above the first column of this triplet
+      const periodNum = periodNums[c]; // 1-6 or null
+      if (!periodNum) continue; // no valid period number — skip
+
+      if (!groupMap.has(groupKey)) {
+        groupMap.set(groupKey, { bg, fg, slots: {} });
+      }
+      const grp = groupMap.get(groupKey);
+      // If multiple rows map to the same period, collect as array
+      if (!grp.slots[periodNum]) grp.slots[periodNum] = [];
+      grp.slots[periodNum].push({ d1, d2, d3 });
     }
   }
 
-  // Within each colour, sort entries left-to-right by colStart,
-  // then assign P1–P6 based on that order
-  colorMap.forEach((entries) => {
-    entries.sort((a, b) => a.colStart - b.colStart);
-    entries.forEach((e, i) => { e.pLabel = `P${i + 1}`; });
-  });
-
-  renderResults(colorMap);
+  renderResults(groupMap);
 }
 
 // ── Rendering ──────────────────────────────────────────────────────────────
 const colorNames = {};
 
-function renderResults(colorMap) {
+function renderResults(groupMap) {
   resultsEl.innerHTML = '';
   emptyState.style.display = 'none';
 
-  if (colorMap.size === 0) {
+  if (groupMap.size === 0) {
     emptyState.style.display = 'block';
     setStatus('No coloured groups found. Check raw HTML debug below.', '');
     clearBtn.style.display = 'block';
     return;
   }
 
-  let total = 0;
-  colorMap.forEach(e => total += e.length);
-  setStatus(`${colorMap.size} colour${colorMap.size!==1?'s':''} · ${total} entr${total!==1?'ies':'y'} total`, 'ok');
+  setStatus(`${groupMap.size} group${groupMap.size!==1?'s':''} found`, 'ok');
   clearBtn.style.display = 'block';
 
-  const sorted = [...colorMap.entries()].sort((a,b) => getLuminance(a[0]) - getLuminance(b[0]));
+  // Sort groups by bg luminance
+  const sorted = [...groupMap.entries()].sort((a,b) => getLuminance(a[1].bg) - getLuminance(b[1].bg));
 
-  sorted.forEach(([color, entries], gi) => {
+  sorted.forEach(([key, { bg, fg, slots }], gi) => {
     const group = document.createElement('div');
     group.className = 'color-group';
     group.style.animationDelay = `${gi * 0.05}s`;
 
-    const savedName = colorNames[color] || '';
+    const savedName = colorNames[key] || '';
 
-    const tableRows = entries.map(({pLabel, periodRef, d1, d2, d3}) => `
-      <tr>
-        <td class="col-p">${pLabel}</td>
-        <td class="col-dash">—</td>
-        <td class="col-data${d1?'':' empty'}">${escapeHTML(d1||'—')}</td>
-        <td class="col-data${d2?'':' empty'}">${escapeHTML(d2||'—')}</td>
-        <td class="col-data${d3?'':' empty'}">${escapeHTML(d3||'—')}</td>
-      </tr>`).join('');
+    // Always render P1–P6
+    const tableRows = [1,2,3,4,5,6].map(p => {
+      const entries = slots[p];
+      if (!entries || entries.length === 0) {
+        // Empty slot — still show the P label, greyed out
+        return `<tr class="empty-row">
+          <td class="col-p">P${p}</td>
+          <td class="col-dash">—</td>
+          <td class="col-data empty" colspan="3"></td>
+        </tr>`;
+      }
+      // Render each row that belongs to this period slot
+      return entries.map(({d1,d2,d3}, idx) => `
+        <tr>
+          <td class="col-p">${idx === 0 ? `P${p}` : ''}</td>
+          <td class="col-dash">${idx === 0 ? '—' : ''}</td>
+          <td class="col-data${d1?'':' empty'}">${escapeHTML(d1||'')}</td>
+          <td class="col-data${d2?'':' empty'}">${escapeHTML(d2||'')}</td>
+          <td class="col-data${d3?'':' empty'}">${escapeHTML(d3||'')}</td>
+        </tr>`).join('');
+    }).join('');
+
+    // Swatch shows bg colour; text swatch shows fg colour if present
+    const textSwatchStyle = fg
+      ? `background:${bg}; color:${fg};`
+      : `background:${bg}; color:transparent;`;
 
     group.innerHTML = `
       <div class="color-group-header">
-        <div class="color-swatch" style="background:${color}"></div>
-        <div class="color-name-wrap">
-          <input class="color-name-input" type="text" placeholder="Name this colour…"
-            value="${escapeHTML(savedName)}" data-color="${escapeHTML(color)}" />
-          <span class="color-label">${escapeHTML(color)}</span>
+        <div class="swatch-wrap">
+          <div class="color-swatch" style="background:${bg}" title="Background: ${bg}"></div>
+          ${fg ? `<div class="text-swatch" style="${textSwatchStyle}" title="Text: ${fg}">A</div>` : ''}
         </div>
-        <span class="row-count">${entries.length} period${entries.length!==1?'s':''}</span>
+        <div class="color-name-wrap">
+          <input class="color-name-input" type="text" placeholder="Name this group…"
+            value="${escapeHTML(savedName)}" data-key="${escapeHTML(key)}" />
+          <span class="color-label">${escapeHTML(bg)}${fg ? ' · text: '+escapeHTML(fg) : ''}</span>
+        </div>
         <button class="copy-btn">Copy all</button>
       </div>
       <table class="entry-table"><tbody>${tableRows}</tbody></table>
     `;
 
     group.querySelector('.color-name-input').addEventListener('input', function() {
-      colorNames[this.dataset.color] = this.value;
+      colorNames[this.dataset.key] = this.value;
     });
 
     group.querySelector('.copy-btn').addEventListener('click', function() {
       const btn = this;
-      // Format: P1 - periodRef  d1  d2  d3  (tab-separated, one line each)
-      const text = entries.map(({pLabel, periodRef, d1, d2, d3}) =>
-        `${pLabel} - ${d1}\t${d2}\t${d3}`
-      ).join('\n');
+      const lines = [1,2,3,4,5,6].map(p => {
+        const entries = slots[p];
+        if (!entries || entries.length === 0) return `P${p} - \t\t`;
+        return entries.map(({d1,d2,d3}) => `P${p} - ${d1}\t${d2}\t${d3}`).join('\n');
+      });
+      const text = lines.join('\n');
       navigator.clipboard.writeText(text).then(() => flash(btn)).catch(() => {
-        const ta = Object.assign(document.createElement('textarea'),
-          {value: text, style: 'position:fixed;opacity:0'});
+        const ta = Object.assign(document.createElement('textarea'), {value:text, style:'position:fixed;opacity:0'});
         document.body.appendChild(ta); ta.select(); document.execCommand('copy');
         document.body.removeChild(ta); flash(btn);
       });
@@ -529,7 +510,7 @@ function flash(btn) {
 }
 
 function getLuminance(c) {
-  const n = c.match(/\d+/g);
+  const n = (c||'').match(/\d+/g);
   return (!n || n.length < 3) ? 999 : 0.299*+n[0] + 0.587*+n[1] + 0.114*+n[2];
 }
 
