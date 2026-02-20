@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timetable</title>
+<title>Time Table</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -459,7 +459,7 @@ body {
 
 <!-- Header -->
 <header class="site-header">
-  <div class="site-title">Timetable</div>
+  <div class="site-title">Time Table</div>
   <div class="site-day" id="todayLabel"></div>
   <div class="theme-toggle" id="themeToggle" title="Toggle dark mode">
     <span class="toggle-label" id="toggleLabel">Light</span>
@@ -557,6 +557,8 @@ clearBtn.addEventListener('click', () => {
   debugContent.textContent = '';
   debugContent.style.display = 'none';
   debugToggle.textContent = 'Show';
+  // Clear the stored timetable so a fresh paste is required
+  try { window.storage.delete('tt-timetable', true).catch(()=>{}); } catch(e) {}
 });
 
 // ── Paste ──────────────────────────────────────────────────────────────────
@@ -637,11 +639,45 @@ function getLuminance(c){const n=(c||'').match(/\d+/g);return(!n||n.length<3)?99
 function contrastColor(bg){return getLuminance(bg)>145?'#18160f':'#ffffff';}
 function escapeHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ── Name storage (cross-device via window.storage) ─────────────────────────
-const colorNames={};
-let currentGroupMap=null;
+// ── Storage helpers ───────────────────────────────────────────────────────
+const colorNames = {};
+let currentGroupMap = null;
 
-// Load all saved names from shared storage on startup
+// Midnight of today as a timestamp — timetable expires at 11:59pm
+function todayMidnight() {
+  const d = new Date();
+  d.setHours(23, 59, 59, 999);
+  return d.getTime();
+}
+
+function isTodayTimestamp(ts) {
+  if (!ts) return false;
+  const saved = new Date(ts);
+  const now = new Date();
+  return saved.getFullYear() === now.getFullYear()
+      && saved.getMonth()    === now.getMonth()
+      && saved.getDate()     === now.getDate();
+}
+
+// Save the full groupMap to shared storage (expires at midnight tonight)
+async function saveTimetable(groupMap) {
+  try {
+    // Convert Map to a plain object for JSON serialisation
+    const obj = {};
+    groupMap.forEach((val, key) => { obj[key] = val; });
+    const payload = JSON.stringify({ data: obj, expires: todayMidnight() });
+    await window.storage.set('tt-timetable', payload, true);
+  } catch(e) {}
+}
+
+// Save individual colour name
+async function saveName(key, name) {
+  try {
+    await window.storage.set('tt-name:' + key, name, true);
+  } catch(e) {}
+}
+
+// Load saved names into colorNames{}
 async function loadSavedNames() {
   try {
     const result = await window.storage.list('tt-name:', true);
@@ -649,18 +685,35 @@ async function loadSavedNames() {
       for (const k of result.keys) {
         try {
           const val = await window.storage.get(k, true);
-          if (val) {
-            const colourKey = k.replace('tt-name:', '');
-            colorNames[colourKey] = val.value;
-          }
+          if (val) colorNames[k.replace('tt-name:', '')] = val.value;
         } catch(e) {}
       }
     }
+  } catch(e) {}
+}
+
+// On startup: try to restore today's timetable from storage
+async function tryRestoreTimetable() {
+  try {
+    await loadSavedNames();
+    const raw = await window.storage.get('tt-timetable', true);
+    if (!raw) return;
+    const parsed = JSON.parse(raw.value);
+    if (!isTodayTimestamp(parsed.expires)) return; // expired — different day
+    // Rebuild Map from stored plain object
+    const groupMap = new Map();
+    for (const [key, val] of Object.entries(parsed.data)) {
+      groupMap.set(key, val);
+    }
+    if (groupMap.size === 0) return;
+    currentGroupMap = groupMap;
+    renderApp(groupMap);
+    statusBar.textContent = `Restored timetable · ${groupMap.size} found · expires at midnight`;
   } catch(e) {
-    // storage not available — names will only persist in this session
+    // Nothing to restore or storage unavailable
   }
 }
-loadSavedNames();
+tryRestoreTimetable();
 
 // ── Processing ─────────────────────────────────────────────────────────────
 
@@ -720,6 +773,7 @@ function processHTMLData(htmlStr) {
   }
   if(groupMap.size===0){pasteStatus.textContent='No coloured groups found.';pasteStatus.className='paste-status err';return;}
   currentGroupMap=groupMap;
+  saveTimetable(groupMap); // persist across devices/refreshes until midnight
   renderApp(groupMap);
 }
 
@@ -774,10 +828,7 @@ function renderApp(groupMap) {
       colorNames[key]=name;
       const pt=document.getElementById('ptitle-'+id);
       if(pt)pt.textContent=name;
-      // Save to shared storage so it persists across devices
-      try {
-        window.storage.set('tt-name:'+key, name, true).catch(()=>{});
-      } catch(e) {}
+      saveName(key, name); // persist across devices
     }
 
     label.addEventListener('input',()=>{
@@ -878,7 +929,7 @@ function renderApp(groupMap) {
 
   pasteScreen.style.display='none';
   app.classList.add('visible');
-  statusBar.textContent=`${groupMap.size} found · click a tab to view`;
+  statusBar.textContent=`${groupMap.size} found · click a tab to view · expires at midnight`;
   if(firstId)activateGroup(firstId);
 }
 
