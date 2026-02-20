@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Time Table</title>
+<title>Timetable</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -459,7 +459,7 @@ body {
 
 <!-- Header -->
 <header class="site-header">
-  <div class="site-title">Time Table</div>
+  <div class="site-title">Timetable</div>
   <div class="site-day" id="todayLabel"></div>
   <div class="theme-toggle" id="themeToggle" title="Toggle dark mode">
     <span class="toggle-label" id="toggleLabel">Light</span>
@@ -557,8 +557,8 @@ clearBtn.addEventListener('click', () => {
   debugContent.textContent = '';
   debugContent.style.display = 'none';
   debugToggle.textContent = 'Show';
-  // Clear the stored timetable so a fresh paste is required
-  try { window.storage.delete('tt-timetable', true).catch(()=>{}); } catch(e) {}
+  // Clear stored state so a fresh paste is required
+  try { window.storage.delete(STORE_KEY, true).catch(()=>{}); } catch(e) {}
 });
 
 // ── Paste ──────────────────────────────────────────────────────────────────
@@ -639,81 +639,60 @@ function getLuminance(c){const n=(c||'').match(/\d+/g);return(!n||n.length<3)?99
 function contrastColor(bg){return getLuminance(bg)>145?'#18160f':'#ffffff';}
 function escapeHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ── Storage helpers ───────────────────────────────────────────────────────
+// ── Storage — single key holds everything ────────────────────────────────
 const colorNames = {};
 let currentGroupMap = null;
+const STORE_KEY = 'tt-state';
 
-// Midnight of today as a timestamp — timetable expires at 11:59pm
-function todayMidnight() {
+function todayDateStr() {
   const d = new Date();
-  d.setHours(23, 59, 59, 999);
-  return d.getTime();
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-function isTodayTimestamp(ts) {
-  if (!ts) return false;
-  const saved = new Date(ts);
-  const now = new Date();
-  return saved.getFullYear() === now.getFullYear()
-      && saved.getMonth()    === now.getMonth()
-      && saved.getDate()     === now.getDate();
-}
-
-// Save the full groupMap to shared storage (expires at midnight tonight)
-async function saveTimetable(groupMap) {
+// Save timetable + names together in one key
+async function saveState(groupMap) {
   try {
-    // Convert Map to a plain object for JSON serialisation
-    const obj = {};
-    groupMap.forEach((val, key) => { obj[key] = val; });
-    const payload = JSON.stringify({ data: obj, expires: todayMidnight() });
-    await window.storage.set('tt-timetable', payload, true);
-  } catch(e) {}
+    const mapObj = {};
+    groupMap.forEach((val, key) => { mapObj[key] = JSON.parse(JSON.stringify(val)); });
+    const payload = JSON.stringify({
+      date: todayDateStr(),
+      map: mapObj,
+      names: { ...colorNames }
+    });
+    await window.storage.set(STORE_KEY, payload, true);
+  } catch(e) { console.warn('saveState failed:', e); }
 }
 
-// Save individual colour name
+// Save updated names into the existing stored state
 async function saveName(key, name) {
-  try {
-    await window.storage.set('tt-name:' + key, name, true);
-  } catch(e) {}
+  colorNames[key] = name;
+  if (currentGroupMap) await saveState(currentGroupMap);
 }
 
-// Load saved names into colorNames{}
-async function loadSavedNames() {
-  try {
-    const result = await window.storage.list('tt-name:', true);
-    if (result && result.keys) {
-      for (const k of result.keys) {
-        try {
-          const val = await window.storage.get(k, true);
-          if (val) colorNames[k.replace('tt-name:', '')] = val.value;
-        } catch(e) {}
-      }
-    }
-  } catch(e) {}
-}
-
-// On startup: try to restore today's timetable from storage
+// On startup: restore from single key
 async function tryRestoreTimetable() {
-  try {
-    await loadSavedNames();
-    const raw = await window.storage.get('tt-timetable', true);
-    if (!raw) return;
-    const parsed = JSON.parse(raw.value);
-    if (!isTodayTimestamp(parsed.expires)) return; // expired — different day
-    // Rebuild Map from stored plain object
-    const groupMap = new Map();
-    for (const [key, val] of Object.entries(parsed.data)) {
-      groupMap.set(key, val);
-    }
-    if (groupMap.size === 0) return;
-    currentGroupMap = groupMap;
-    renderApp(groupMap);
-    statusBar.textContent = `Restored timetable · ${groupMap.size} found · expires at midnight`;
-  } catch(e) {
-    // Nothing to restore or storage unavailable
-  }
+  let raw;
+  try { raw = await window.storage.get(STORE_KEY, true); } catch(e) { return; }
+  if (!raw || !raw.value) return;
+
+  let state;
+  try { state = JSON.parse(raw.value); } catch(e) { return; }
+  if (!state || !state.map || !state.date) return;
+  if (state.date !== todayDateStr()) return; // different day — expired
+
+  // Restore names
+  if (state.names) Object.assign(colorNames, state.names);
+
+  // Rebuild Map
+  const groupMap = new Map();
+  for (const [key, val] of Object.entries(state.map)) groupMap.set(key, val);
+  if (groupMap.size === 0) return;
+
+  currentGroupMap = groupMap;
+  renderApp(groupMap);
+  statusBar.textContent = `Timetable restored · ${groupMap.size} found · expires at midnight`;
 }
-tryRestoreTimetable();
+setTimeout(tryRestoreTimetable, 0);
 
 // ── Processing ─────────────────────────────────────────────────────────────
 
@@ -773,7 +752,7 @@ function processHTMLData(htmlStr) {
   }
   if(groupMap.size===0){pasteStatus.textContent='No coloured groups found.';pasteStatus.className='paste-status err';return;}
   currentGroupMap=groupMap;
-  saveTimetable(groupMap); // persist across devices/refreshes until midnight
+  saveState(groupMap); // persist across devices/refreshes until midnight
   renderApp(groupMap);
 }
 
@@ -929,7 +908,7 @@ function renderApp(groupMap) {
 
   pasteScreen.style.display='none';
   app.classList.add('visible');
-  statusBar.textContent=`${groupMap.size} found · click a tab to view · expires at midnight`;
+  statusBar.textContent=`${groupMap.size} found · expires at midnight · paste again to update`;
   if(firstId)activateGroup(firstId);
 }
 
