@@ -50,23 +50,25 @@ body {
 
 /* ── Header ── */
 .site-header {
-  background: var(--header-bg);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   padding: 22px 40px;
   display: flex;
   align-items: center;
   gap: 20px;
+  transition: background .25s, border-color .25s;
 }
 .site-title {
   font-size: 2rem;
   font-weight: 900;
-  color: var(--header-fg);
+  color: var(--text);
   letter-spacing: -0.04em;
   line-height: 1;
 }
 .site-day {
   font-family: 'DM Mono', monospace;
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.35);
+  color: var(--muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-left: auto;
@@ -84,7 +86,7 @@ body {
 .toggle-label {
   font-family: 'DM Mono', monospace;
   font-size: 0.68rem;
-  color: rgba(255,255,255,0.4);
+  color: var(--muted);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -381,12 +383,43 @@ body {
   word-break: break-word;
   padding: 20px 24px !important;
   align-items: flex-start;
+  cursor: pointer;
+  position: relative;
+  transition: background .15s;
+  user-select: none;
+}
+.cell-data:not(.empty):hover {
+  background: var(--soft);
+}
+.cell-data:not(.empty):hover::after {
+  content: 'copy';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.cell-data.flash-copy {
+  background: var(--soft);
+}
+.cell-data.flash-copy::after {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 0.7rem;
+  color: #22a85a;
 }
 .cell-data.empty {
   color: var(--muted);
   font-weight: 400;
   font-size: 0.82rem;
   font-style: italic;
+  cursor: default;
 }
 
 /* ── Paste status (below paste zone) ── */
@@ -789,9 +822,9 @@ function renderApp(groupMap) {
           <div class="accent-bar" style="background:${bg}"></div>
           <div class="cell-period has-data">P${p}</div>
           <div class="cell-dash">—</div>
-          <div class="cell-data${d1?'':' empty'}">${escapeHTML(d1||'')}</div>
-          <div class="cell-data${d2?'':' empty'}">${escapeHTML(d2||'')}</div>
-          <div class="cell-data${d3?'':' empty'}">${escapeHTML(d3||'')}</div>
+          <div class="cell-data${d1?'':' empty'}" data-copy="${escapeHTML(d1||'')}">${escapeHTML(d1||'')}</div>
+          <div class="cell-data${d2?'':' empty'}" data-copy="${escapeHTML(d2||'')}">${escapeHTML(d2||'')}</div>
+          <div class="cell-data${d3?'':' empty'}" data-copy="${escapeHTML(d3||'')}">${escapeHTML(d3||'')}</div>
         </div>`).join('');
     }).join('');
 
@@ -824,6 +857,23 @@ function renderApp(groupMap) {
     });
 
     contentArea.appendChild(panel);
+  });
+
+  // Click-to-copy on individual data cells (event delegation)
+  contentArea.addEventListener('click', e => {
+    const cell = e.target.closest('.cell-data:not(.empty)');
+    if (!cell) return;
+    const text = cell.dataset.copy;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      cell.classList.add('flash-copy');
+      setTimeout(() => cell.classList.remove('flash-copy'), 1200);
+    }).catch(() => {
+      const ta = Object.assign(document.createElement('textarea'), {value: text, style: 'position:fixed;opacity:0'});
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      cell.classList.add('flash-copy');
+      setTimeout(() => cell.classList.remove('flash-copy'), 1200);
+    });
   });
 
   pasteScreen.style.display='none';
