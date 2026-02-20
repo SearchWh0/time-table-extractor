@@ -68,27 +68,7 @@
     gap: 16px;
     flex-wrap: wrap;
   }
-  .ref-row-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-  .ref-row-input {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    padding: 4px 8px;
-    width: 52px;
-    outline: none;
-    text-align: center;
-    transition: border-color 0.2s;
-  }
-  .ref-row-input:focus { border-color: var(--accent); }
+
 
   .status { flex: 1; font-size: 0.75rem; color: var(--muted); min-height: 20px; }
   .status.ok  { color: var(--accent); }
@@ -226,10 +206,7 @@
 </div>
 
 <div class="controls">
-  <div class="ref-row-wrap">
-    <label for="refRowInput">Period ref row:</label>
-    <input id="refRowInput" class="ref-row-input" type="number" min="1" value="3" />
-  </div>
+
   <div class="status" id="status"></div>
   <button class="clear-btn" id="clearBtn">✕ Clear</button>
 </div>
@@ -255,7 +232,6 @@ const emptyState   = document.getElementById('emptyState');
 const debugBox     = document.getElementById('debugBox');
 const debugContent = document.getElementById('debugContent');
 const debugToggle  = document.getElementById('debugToggle');
-const refRowInput  = document.getElementById('refRowInput');
 
 pasteZone.addEventListener('click', () => pasteZone.focus());
 document.addEventListener('paste', handlePaste);
@@ -374,7 +350,7 @@ function cellColor(td, ccm) {
 
 // ── Main processing ────────────────────────────────────────────────────────
 function processHTMLData(html) {
-  const refRowIndex = (parseInt(refRowInput.value, 10) || 3) - 1; // 0-based
+  const refRowIndex = 2; // row 3, 0-based
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
@@ -506,7 +482,6 @@ function renderResults(colorMap) {
       <tr>
         <td class="col-p">${pLabel}</td>
         <td class="col-dash">—</td>
-        <td class="col-data${periodRef?'':' empty'}">${escapeHTML(periodRef||'—')}</td>
         <td class="col-data${d1?'':' empty'}">${escapeHTML(d1||'—')}</td>
         <td class="col-data${d2?'':' empty'}">${escapeHTML(d2||'—')}</td>
         <td class="col-data${d3?'':' empty'}">${escapeHTML(d3||'—')}</td>
@@ -534,7 +509,7 @@ function renderResults(colorMap) {
       const btn = this;
       // Format: P1 - periodRef  d1  d2  d3  (tab-separated, one line each)
       const text = entries.map(({pLabel, periodRef, d1, d2, d3}) =>
-        `${pLabel} - ${periodRef}\t${d1}\t${d2}\t${d3}`
+        `${pLabel} - ${d1}\t${d2}\t${d3}`
       ).join('\n');
       navigator.clipboard.writeText(text).then(() => flash(btn)).catch(() => {
         const ta = Object.assign(document.createElement('textarea'),
